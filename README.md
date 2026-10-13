@@ -1,6 +1,6 @@
 # Interrogatory & Motion Drafter (Demo)
 
-Drafts plaintiff's answers to Form A uniform interrogatories, answers to the defense's supplemental questions, and routine motion papers from the facts of a matter, entered once. Every answer is checked by the paralegal and approved by the attorney before it is served.
+Drafts plaintiff's answers to Form A uniform interrogatories, answers to the defense's supplemental questions, and routine motion papers from the facts of a matter.
 
 **This is a demonstration.**
 
