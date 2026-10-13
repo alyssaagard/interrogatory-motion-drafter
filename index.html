@@ -10,107 +10,177 @@
 <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <style>
+/* Same frame as the two demos: white top bar, task list on the left, panels on a light grey ground.
+   Times New Roman throughout; color only for status. */
 :root {
   color-scheme: light;
   --ink: #141414; --muted: #6B6B6B; --faint: #9B9B9B;
   --line: #E7E7E7; --line-strong: #D3D3D3;
-  --bg: #F6F6F6; --surface: #FFFFFF; --grey-bg: #F0F0F0; --black: #111111;
+  --bg: #F6F6F6; --surface: #FFFFFF; --hover: #F3F3F3; --selected: #EDEDED; --black: #111111;
+  --grey-bg: #F0F0F0;
   --serif: "Times New Roman", Times, "Liberation Serif", serif;
+  --radius: 6px;
   --green: #1E7F4F; --green-bg: #E6F4EC;
   --blue: #2557B5;  --blue-bg: #E9EFFA;
   --amber: #9A5A00; --amber-bg: #FDF2DA;
   --red: #B42318;   --red-bg: #FCECEB;
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(--serif); }
-a { color: var(--ink); text-underline-offset: 2px; }
-.top { background: var(--surface); border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
-.top b { font-size: 18px; }
-.tag { font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line-strong); border-radius: 999px; padding: 0 9px; }
-main { max-width: 880px; margin: 0 auto; padding: 34px 20px 60px; }
-h1 { font-size: 32px; line-height: 1.2; margin: 0 0 10px; text-wrap: balance; }
-h2 { font-size: 21px; margin: 38px 0 12px; }
-.lead { color: var(--muted); margin: 0; max-width: 66ch; }
-.callout { margin: 22px 0 0; padding: 12px 16px; border-radius: 6px; background: var(--amber-bg); color: #6B4000; }
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; margin-top: 26px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
-.card h3 { margin: 0; font-size: 20px; }
-.card p { margin: 0; color: var(--muted); flex: 1; }
-.btn { align-self: flex-start; display: inline-block; background: var(--black); color: #FFFFFF; text-decoration: none; border-radius: 4px; padding: 7px 16px; font-size: 16px; }
-.btn:hover { background: #333333; }
-.btn.light { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); }
-.btn.light:hover { background: #F3F3F3; }
-ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 14px; }
-ol.steps li { counter-increment: step; display: grid; grid-template-columns: 2em minmax(0, 1fr); }
-ol.steps li::before { content: counter(step); color: var(--faint); font-variant-numeric: tabular-nums; }
-.tools { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px 20px; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--serif); }
+a { color: var(--ink); text-underline-offset: 2px; text-decoration-color: var(--line-strong); }
+a:hover { text-decoration-color: var(--ink); }
+:focus-visible { outline: 2px solid var(--black); outline-offset: 2px; }
+
+/* frame */
+.topbar { position: sticky; top: 0; z-index: 20; height: 52px; background: var(--surface); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 22px; padding: 0 20px; }
+.app-name { font-weight: bold; font-size: 18px; text-decoration: none; white-space: nowrap; }
+.demo-tag { margin-left: -12px; font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line-strong); border-radius: 999px; padding: 0 9px; white-space: nowrap; }
+.layout { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: calc(100vh - 52px); }
+.sidebar { background: var(--surface); border-right: 1px solid var(--line); padding: 14px 10px 40px; position: sticky; top: 52px; height: calc(100vh - 52px); overflow-y: auto; }
+.sidebar h4 { font-size: 12.5px; font-weight: normal; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); margin: 16px 10px 6px; }
+.sidebar h4:first-child { margin-top: 2px; }
+.nav { display: flex; gap: 10px; align-items: baseline; padding: 6px 10px; border-radius: var(--radius); color: var(--ink); text-decoration: none; }
+.nav:hover { background: var(--hover); }
+.nav.on { background: var(--selected); }
+.nav.on b { font-weight: bold; }
+.nav .num { min-width: 1.1em; color: var(--faint); font-variant-numeric: tabular-nums; }
+.nav .t { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.nav b { font-weight: normal; font-size: 15.5px; }
+.nav i { font-style: normal; font-size: 13.5px; color: var(--muted); }
+.content { padding: 26px 32px 80px; min-width: 0; max-width: 1240px; }
+@media (max-width: 900px) {
+  .topbar { height: auto; padding: 12px 16px; position: static; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { position: static; height: auto; display: flex; overflow-x: auto; padding: 6px 10px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .sidebar h4, .nav i { display: none; }
+  .nav { flex: none; }
+  .content { padding: 18px 16px 60px; }
+}
+
+/* page heading and panels */
+.page-head { margin-bottom: 22px; }
+.page-head .step { display: block; font-size: 13.5px; color: var(--faint); letter-spacing: .04em; margin-bottom: 2px; }
+.page-head h1 { margin: 0; font-size: 27px; line-height: 1.2; text-wrap: balance; }
+.page-head p { margin: 6px 0 0; color: var(--muted); max-width: 70ch; }
+.callout { border-radius: var(--radius); padding: 10px 14px; margin-bottom: 18px; background: var(--amber-bg); color: #6B4000; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 18px; min-width: 0; scroll-margin-top: 70px; }
+.panel > header { padding: 14px 18px 0; }
+.panel h2 { margin: 0; font-size: 18px; }
+.note { margin: 3px 0 0; color: var(--muted); font-size: 14.5px; max-width: 76ch; }
+.panel-body { padding: 14px 18px 18px; }
+.two-up { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 18px; margin-bottom: 18px; }
+.two-up > .panel { margin: 0; display: flex; flex-direction: column; }
+.two-up .panel-body { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.two-up .panel-body p { margin: 0; flex: 1; max-width: 70ch; }
+.btn { align-self: flex-start; display: inline-flex; align-items: center; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 4px; padding: 6px 14px; font-size: 15px; min-height: 36px; color: var(--ink); text-decoration: none; }
+.btn:hover { background: var(--hover); }
+.btn.primary { background: var(--black); border-color: var(--black); color: #FFFFFF; }
+.btn.primary:hover { background: #333333; }
+
+/* steps, tools, status colors */
+.steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+.steps li { counter-increment: step; display: grid; grid-template-columns: 2em minmax(0, 1fr); padding: 10px 0; border-top: 1px solid var(--line); max-width: 92ch; }
+.steps li:first-child { border-top: 0; padding-top: 0; }
+.steps li::before { content: counter(step); color: var(--faint); font-variant-numeric: tabular-nums; }
+.tools { margin: 0; padding: 0; list-style: none; }
+.tools li { padding: 10px 0; border-top: 1px solid var(--line); max-width: 92ch; }
+.tools li:first-child { border-top: 0; padding-top: 0; }
+.panel-body .note { margin-top: 12px; }
 .legend { display: flex; flex-wrap: wrap; gap: 8px 10px; }
-.st { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; padding: 1px 10px; border-radius: 999px; background: var(--grey-bg); color: var(--muted); }
-.st::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-.st.green { background: var(--green-bg); color: var(--green); }
-.st.blue { background: var(--blue-bg); color: var(--blue); }
-.st.amber { background: var(--amber-bg); color: var(--amber); }
-.st.red { background: var(--red-bg); color: var(--red); }
-.note { color: var(--muted); font-size: 15.5px; margin: 14px 0 0; }
-footer { border-top: 1px solid var(--line); margin-top: 44px; padding-top: 16px; color: var(--muted); font-size: 14.5px; }
-footer p { margin: 0 0 8px; }
+.st { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; line-height: 1.5; padding: 1px 9px; border-radius: 999px; background: var(--grey-bg); color: var(--muted); white-space: nowrap; }
+.st::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.st-approved { background: var(--green-bg); color: var(--green); }
+.st-checked { background: var(--blue-bg); color: var(--blue); }
+.st-recheck { background: var(--amber-bg); color: var(--amber); }
+.st-missing { background: var(--red-bg); color: var(--red); }
+.foot { margin-top: 28px; color: var(--muted); font-size: 14px; max-width: 92ch; }
+.foot p { margin: 0 0 8px; }
 </style>
 </head>
 <body>
-<header class="top"><b>Interrogatory &amp; Motion Drafter</b><span class="tag">Demo</span></header>
-<main>
-  <h1>Interrogatory &amp; Motion Drafter</h1>
-  <p class="lead">Drafts plaintiff's answers to Form A uniform interrogatories, answers to the defense's supplemental questions, and routine motion papers from the facts of a matter, entered once. Every answer is checked by the paralegal and approved by the attorney before it is served.</p>
+<header class="topbar"><a class="app-name" href="./">Interrogatory &amp; Motion Drafter</a><span class="demo-tag">Demo</span></header>
+<div class="layout">
+<nav class="sidebar" aria-label="Sections">
+  <h4>This demo</h4>
+  <a class="nav on" href="#top"><span class="num"></span><span class="t"><b>Overview</b></span></a>
+  <a class="nav" href="#how"><span class="num"></span><span class="t"><b>How it works</b></span></a>
+  <a class="nav" href="#tools"><span class="num"></span><span class="t"><b>Other tools</b></span></a>
+  <a class="nav" href="#colors"><span class="num"></span><span class="t"><b>Status colors</b></span></a>
+  <h4>Open the demo</h4>
+  <a class="nav" href="example/"><span class="num">1</span><span class="t"><b>Example</b><i>Fill-in-the-blank example</i></span></a>
+  <a class="nav" href="blank/"><span class="num">2</span><span class="t"><b>Blank</b><i>Start a matter from the beginning</i></span></a>
+</nav>
+<main class="content" id="top">
+  <div class="page-head">
+    <span class="step">Demonstration</span>
+    <h1>Interrogatory &amp; Motion Drafter</h1>
+    <p>Drafts plaintiff's answers to Form A uniform interrogatories, answers to the defense's supplemental questions, and routine motion papers from the facts of a matter, entered once. Every answer is checked by the paralegal and approved by the attorney before it is served.</p>
+  </div>
+
   <div class="callout"><b>This is a demonstration.</b> Anything entered stays in the browser on the computer being used.</div>
 
-  <div class="cards">
-    <section class="card">
-      <h3>Example</h3>
-      <p>Opens with a fill-in-the-blank example already entered, so every screen and the finished answers can be seen right away. Bracketed blanks such as [PLAINTIFF NAME] stand in for the facts of a matter.</p>
-      <a class="btn" href="example/">Open the example</a>
+  <div class="two-up">
+    <section class="panel">
+      <header><h2>Example</h2><p class="note">Opens right away.</p></header>
+      <div class="panel-body">
+        <p>Opens with a fill-in-the-blank example already entered, so every screen and the finished answers can be seen right away. Bracketed blanks such as [PLAINTIFF NAME] stand in for the facts of a matter.</p>
+        <a class="btn primary" href="example/">Open the example</a>
+      </div>
     </section>
-    <section class="card">
-      <h3>Blank</h3>
-      <p>Starts with no matters. Enter a matter from the beginning to see each answer drafted as the facts go in. Takes a few seconds to open the first time.</p>
-      <a class="btn light" href="blank/">Open the blank version</a>
+    <section class="panel">
+      <header><h2>Blank</h2><p class="note">Takes a few seconds to open the first time.</p></header>
+      <div class="panel-body">
+        <p>Starts with no matters. Enter a matter from the beginning to see each answer drafted as the facts go in.</p>
+        <a class="btn" href="blank/">Open the blank version</a>
+      </div>
     </section>
   </div>
 
-  <h2>How it works</h2>
-  <div class="panel">
-    <ol class="steps">
-      <li><span><b>Enter the facts.</b> Fill in the first five screens from the police report, the medical records, the client, and the attorney's decisions. Anything an answer still needs is outlined in red and labeled with the question that needs it.</span></li>
-      <li><span><b>Review the Form A answers.</b> Each answer is drafted from those screens. Where an item is missing, choose Fill in to go straight to the right box, then go back to the answer. The wording can be edited, and standard language or an objection can be inserted.</span></li>
-      <li><span><b>Sign off.</b> The paralegal marks each answer as checked, and the attorney then approves it. If the wording changes after either sign-off, the answer is flagged to be checked again.</span></li>
-      <li><span><b>Supplemental questions.</b> Paste the defense's questions as served. The firm's standard answers are suggested where they fit. Questions past the tenth, or with subparts, are flagged with the matching objection under R. 4:17-1(b)(1).</span></li>
-      <li><span><b>Finish and serve.</b> See the deadlines, the attachment and HIPAA authorization checklists, and the finished answers, ready to download as a Word file or print.</span></li>
-    </ol>
-    <p class="note">In the blank version, choose Save before leaving a screen. The example saves as you type.</p>
-  </div>
+  <section class="panel" id="how">
+    <header><h2>How it works</h2><p class="note">The same steps appear, in order, down the left side of each demo.</p></header>
+    <div class="panel-body">
+      <ol class="steps">
+        <li><span><b>Enter the facts.</b> Fill in the first five screens from the police report, the medical records, the client, and the attorney's decisions. Anything an answer still needs is outlined in red and labeled with the question that needs it.</span></li>
+        <li><span><b>Review the Form A answers.</b> Each answer is drafted from those screens. Where an item is missing, choose Fill in to go straight to the right box, then go back to the answer. The wording can be edited, and standard language or an objection can be inserted.</span></li>
+        <li><span><b>Sign off.</b> The paralegal marks each answer as checked, and the attorney then approves it. If the wording changes after either sign-off, the answer is flagged to be checked again.</span></li>
+        <li><span><b>Supplemental questions.</b> Paste the defense's questions as served. The firm's standard answers are suggested where they fit. Questions past the tenth, or with subparts, are flagged with the matching objection under R. 4:17-1(b)(1).</span></li>
+        <li><span><b>Finish and serve.</b> See the deadlines, the attachment and HIPAA authorization checklists, and the finished answers, ready to download as a Word file or print.</span></li>
+      </ol>
+      <p class="note">In the blank version, choose Save before leaving a screen. The example saves as you type.</p>
+    </div>
+  </section>
 
-  <h2>Other tools</h2>
-  <div class="panel">
-    <ul class="tools">
-      <li><b>Motion papers.</b> Choose the motion and fill in a few details. The notice, certification, proposed order, and filing deadlines are prepared from the matter. Places that call for the attorney's argument are marked.</li>
-      <li><b>Client questionnaire.</b> A plain-language questionnaire for the client, sent blank or filled in for the client to confirm.</li>
-      <li><b>Forms library and Firm settings.</b> Change question wording, standard answers, objections, and letterhead. Changes apply to every matter.</li>
-    </ul>
-  </div>
+  <section class="panel" id="tools">
+    <header><h2>Other tools</h2></header>
+    <div class="panel-body">
+      <ul class="tools">
+        <li><b>Motion papers.</b> Choose the motion and fill in a few details. The notice, certification, proposed order, and filing deadlines are prepared from the matter. Places that call for the attorney's argument are marked.</li>
+        <li><b>Client questionnaire.</b> A plain-language questionnaire for the client, sent blank or filled in for the client to confirm.</li>
+        <li><b>Forms library and Firm settings.</b> Change question wording, standard answers, objections, and letterhead. Changes apply to every matter.</li>
+      </ul>
+    </div>
+  </section>
 
-  <h2>Status colors</h2>
-  <div class="legend">
-    <span class="st green">Approved by attorney</span>
-    <span class="st blue">Checked by paralegal</span>
-    <span class="st amber">Needs recheck</span>
-    <span class="st red">Needs information</span>
-    <span class="st">Draft</span>
-  </div>
+  <section class="panel" id="colors">
+    <header><h2>Status colors</h2><p class="note">Shown next to every answer.</p></header>
+    <div class="panel-body">
+      <div class="legend">
+        <span class="st st-approved">Approved by attorney</span>
+        <span class="st st-checked">Checked by paralegal</span>
+        <span class="st st-recheck">Needs recheck</span>
+        <span class="st st-missing">Needs information</span>
+        <span class="st">Draft</span>
+      </div>
+    </div>
+  </section>
 
-  <footer>
+  <div class="foot">
     <p>Form A question text is from the New Jersey Court Rules, Appendix II. Anything drafted must be reviewed by an attorney, and all dates and citations confirmed, before use.</p>
     <p>&copy; 2026 Alyssa I. Agard. All rights reserved. Provided for viewing and offline testing. No copying, modification, or distribution without written permission.</p>
-  </footer>
+  </div>
 </main>
+</div>
 </body>
 </html>
