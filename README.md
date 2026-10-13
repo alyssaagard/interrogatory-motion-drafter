@@ -2,7 +2,7 @@
 
 Drafts plaintiff's answers to Form A uniform interrogatories, answers to the defense's supplemental questions, and routine motion papers from the facts of a matter, entered once. Every answer is checked by the paralegal and approved by the attorney before it is served.
 
-**This is a demonstration. Use made-up information only. Do not enter client information.**
+**This is a demonstration.**
 
 ## Open the demo
 
@@ -10,7 +10,7 @@ Drafts plaintiff's answers to Form A uniform interrogatories, answers to the def
 - **Example:** https://alyssaagard.github.io/interrogatory-motion-drafter/example/
   Opens with a fill-in-the-blank example already entered, so every screen and the finished answers can be seen right away.
 - **Blank:** https://alyssaagard.github.io/interrogatory-motion-drafter/blank/
-  Starts with no matters, for entering a made-up matter from the beginning. Takes a few seconds to open the first time.
+  Starts with no matters, for entering a matter from the beginning. Takes a few seconds to open the first time.
 
 ## How it works
 
@@ -24,4 +24,4 @@ Drafts plaintiff's answers to Form A uniform interrogatories, answers to the def
 
 ## Copyright
 
-© 2026 Alyssa Agard. All rights reserved. Provided for viewing only. No copying, modification, or distribution without written permission. See [LICENSE](LICENSE).
+© 2026 Alyssa I. Agard. All rights reserved. Provided for viewing and offline testing. No copying, modification, or distribution without written permission. See [LICENSE](LICENSE).
