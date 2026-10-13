@@ -1,0 +1,2251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Interrogatory &amp; Motion Drafter Demo</title>
+<link rel="icon" href="../favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<style>
+/* Black and white with greys, Times New Roman throughout.
+   Color marks status only: green approved, blue checked, amber needs recheck, red needs information.
+   Bracketed capitals such as [PLAINTIFF NAME] are blanks to fill in, shaded grey. */
+:root{
+  color-scheme:light;
+  --ink:#141414;
+  --muted:#6B6B6B;
+  --faint:#9B9B9B;
+  --line:#E7E7E7;
+  --line-strong:#D3D3D3;
+  --bg:#F6F6F6;
+  --surface:#FFFFFF;
+  --hover:#F3F3F3;
+  --sel:#EDEDED;
+  --black:#111111;
+  --white:#FFFFFF;
+  --desk:#ECECEC;
+  --grey-bg:#F0F0F0;
+  --f:"Times New Roman",Times,"Liberation Serif",serif;
+  --mono:Consolas,Menlo,"Courier New",monospace;
+  --r:6px;
+  --green:#1E7F4F; --green-bg:#E6F4EC; --green-line:#A9D8BE;
+  --blue:#2557B5;  --blue-bg:#E9EFFA;  --blue-line:#B9CBEE;
+  --amber:#9A5A00; --amber-bg:#FDF2DA; --amber-line:#EDCB86;
+  --red:#B42318;   --red-bg:#FCECEB;   --red-line:#F0B7B2;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--f)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--ink);text-underline-offset:2px;text-decoration-color:var(--line-strong)}
+:focus-visible{outline:2px solid var(--black);outline-offset:2px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.between{justify-content:space-between}
+
+/* top bar */
+.bar{background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{display:flex;flex-wrap:wrap;align-items:center;gap:6px 22px;padding:12px 20px;min-height:52px}
+.app{font-size:18px;font-weight:bold;white-space:nowrap}
+.demo{margin-left:6px;font-size:12.5px;font-weight:normal;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line-strong);border-radius:999px;padding:0 9px;vertical-align:2px}
+.mat{flex:1 1 320px;min-width:0;display:flex;flex-wrap:wrap;gap:0 10px;align-items:baseline;color:var(--muted);font-size:15px}
+.mat b{font-weight:normal;color:var(--ink);overflow-wrap:anywhere}
+.mat span{font-variant-numeric:tabular-nums}
+.due{font-size:14px;padding:3px 11px;border-radius:999px;background:var(--grey-bg);color:var(--muted);white-space:nowrap}
+.due.ok{background:var(--green-bg);color:var(--green)}
+.due.soon{background:var(--amber-bg);color:var(--amber);font-weight:bold}
+.due.late{background:var(--red-bg);color:var(--red);font-weight:bold}
+.notice{background:var(--blue-bg);color:#1B3F84;border-bottom:1px solid var(--blue-line);font-size:14.5px}
+.notice div{padding:6px 20px}
+@media (max-width:640px){.due{white-space:normal}}
+
+/* frame */
+.shell{display:grid;grid-template-columns:240px minmax(0,1fr)}
+.rail{background:var(--surface);border-right:1px solid var(--line);padding:14px 10px 40px;position:sticky;top:0;align-self:start;height:100vh;overflow:auto}
+.rail h4{font-size:12.5px;font-weight:normal;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin:16px 10px 6px}
+.rail h4:first-child{margin-top:2px}
+.step{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;border:0;background:none;padding:6px 10px;border-radius:var(--r);cursor:pointer;color:var(--ink)}
+.step:hover{background:var(--hover)}
+.step.on{background:var(--sel)}
+.step.on .t b{font-weight:bold}
+.step .num{min-width:1.1em;color:var(--faint);font-variant-numeric:tabular-nums}
+.step .t{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.step .t b{font-weight:normal;font-size:15.5px}
+.step .t i{font-style:normal;font-size:13.5px;color:var(--muted)}
+.step .t i.warn{color:var(--red)}
+.step .t i.ok{color:var(--green)}
+main{padding-block:26px 120px;padding-inline:32px;min-width:0;max-width:1240px}
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static;height:auto;display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:6px 10px}
+  .rail h4,.step .t i{display:none}
+  .step{width:auto;flex:none;align-items:center}
+  .top-in{padding:10px 16px}
+  .notice div{padding:6px 16px}
+  main{padding-block:18px 90px;padding-inline:16px}
+}
+
+/* page heading, panels, fields */
+.ph{margin-bottom:22px}
+.ph .stepno{display:block;font-size:13.5px;color:var(--faint);letter-spacing:.04em;margin-bottom:2px}
+.ph h1{margin:0;font-size:27px;line-height:1.2;text-wrap:balance}
+.ph p{margin:6px 0 0;max-width:70ch;color:var(--muted)}
+.group,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:18px;min-width:0}
+.group>header,.card>header{padding:14px 18px 0;display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;justify-content:space-between}
+.group h3,.card h3{margin:0;font-size:18px}
+.note{margin:3px 0 0;font-size:14.5px;color:var(--muted);max-width:76ch;flex-basis:100%}
+.group>header>.note,.card>header>.note{max-width:none}
+.gbody{padding:14px 18px 18px}
+.fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:14px 20px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f.full{grid-column:1/-1}
+.f>label,.f .lab{font-weight:bold;font-size:15px}
+.hint{font-size:13.5px;color:var(--faint)}
+.needfor{font-size:13.5px;color:var(--red)}
+.f.need>input,.f.need>select,.f.need>textarea{border-color:var(--red-line);background:#FFFCFB}
+input[type=text],input[type=date],input[type=time],input[type=number],select,textarea{width:100%;background:var(--surface);border:1px solid var(--line-strong);border-radius:4px;padding:6px 9px;min-height:36px;font-size:16px}
+textarea{min-height:72px;resize:vertical;line-height:1.45}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--black);box-shadow:0 0 0 3px rgba(0,0,0,.07)}
+input[type=radio],input[type=checkbox]{accent-color:var(--black);width:16px;height:16px;margin:0;flex:none}
+.yn{display:flex;gap:22px;padding:6px 2px}
+.yn label{display:inline-flex;gap:7px;align-items:center;cursor:pointer}
+.flash{animation:flash 1.8s ease;border-radius:4px}
+@keyframes flash{0%,55%{box-shadow:0 0 0 4px var(--amber-line)}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none;box-shadow:0 0 0 3px var(--amber-line)}}
+.items{display:flex;flex-direction:column;gap:12px}
+.item{border:1px solid var(--line);border-radius:var(--r);background:#FCFCFC}
+.item>header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px 0}
+.item>header b{font-weight:normal;font-size:14.5px;color:var(--muted)}
+.item>header .btn{border-color:transparent;background:transparent;color:var(--red)}
+.item>header .btn:hover{background:var(--red-bg)}
+.item>.fields{padding:10px 12px 14px}
+.empty-list{margin:0;color:var(--faint)}
+.nextbar{position:sticky;bottom:0;z-index:5;display:flex;justify-content:flex-end;padding:12px 0;background:linear-gradient(rgba(246,246,246,0),var(--bg) 35%)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line-strong);background:var(--surface);border-radius:4px;padding:5px 14px;font-size:15px;cursor:pointer;min-height:34px;color:var(--ink);text-align:center;text-decoration:none}
+.btn:hover{background:var(--hover)}
+.btn.pri{background:var(--black);border-color:var(--black);color:var(--white)}
+.btn.pri:hover{background:#333333}
+.btn.check{background:var(--blue);border-color:var(--blue);color:var(--white)}
+.btn.check:hover{background:#1D4794}
+.btn.approve{background:var(--green);border-color:var(--green);color:var(--white)}
+.btn.approve:hover{background:#17673F}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--muted)}
+.btn.quiet:hover{background:var(--hover);color:var(--ink)}
+.btn.sm{padding:2px 10px;min-height:30px;font-size:14px}
+.btn.armed{background:var(--red);border-color:var(--red);color:var(--white)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* status */
+.st{display:inline-flex;align-items:center;gap:6px;font-size:13px;line-height:1.5;padding:1px 9px;border-radius:999px;background:var(--grey-bg);color:var(--muted);white-space:nowrap}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.st-approved{background:var(--green-bg);color:var(--green)}
+.st-checked{background:var(--blue-bg);color:var(--blue)}
+.st-recheck{background:var(--amber-bg);color:var(--amber)}
+.st-missing,.st-blank{background:var(--red-bg);color:var(--red)}
+.st-edited{background:var(--grey-bg);color:var(--ink)}
+
+.callout{border-radius:var(--r);padding:10px 14px;font-size:15px;margin-bottom:14px;background:var(--grey-bg)}
+.callout.amber{background:var(--amber-bg);color:#6B4000}
+.callout.green{background:var(--green-bg);color:#145A37}
+.callout.red{background:var(--red-bg);color:#7E1A12}
+.callout.blue{background:var(--blue-bg);color:#1B3F84}
+.banner{border-radius:var(--r);padding:10px 14px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px 12px;justify-content:space-between;align-items:center;font-size:15px;background:var(--amber-bg);color:#6B4000}
+
+/* Form A answers */
+.rv{display:grid;grid-template-columns:minmax(270px,330px) minmax(0,1fr);gap:18px;align-items:start}
+.rv-index{position:sticky;top:16px;max-height:calc(100vh - 32px);display:flex;flex-direction:column;margin:0;overflow:hidden}
+.rv-index .scroll{overflow:auto;min-height:0;border-top:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:14.5px;padding:12px 16px 10px}
+.stats b{font-variant-numeric:tabular-nums}
+.stats .c-green b{color:var(--green)}
+.stats .c-blue b{color:var(--blue)}
+.stats .c-amber b{color:var(--amber)}
+.stats .c-red b{color:var(--red)}
+.filters{display:flex;flex-wrap:wrap;gap:4px;padding:0 12px 10px}
+.filters button{border:0;background:none;font-size:14px;padding:2px 10px;border-radius:999px;color:var(--muted);cursor:pointer}
+.filters button:hover{background:var(--hover)}
+.filters button.on{background:var(--black);color:var(--white)}
+.qindex{width:100%;border-collapse:collapse;font-size:15px}
+.qindex th{position:sticky;top:0;background:var(--surface);text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:normal;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);z-index:1}
+.qindex td{padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.qindex td:first-child{text-align:right;font-variant-numeric:tabular-nums;width:2.6em;color:var(--faint)}
+.qindex tr{cursor:pointer}
+.qindex tr:hover td{background:var(--hover)}
+.qindex tr.sel td{background:var(--sel)}
+.qindex tr.sel td:first-child{color:var(--ink);font-weight:bold}
+.qbtn{border:0;background:none;padding:0;text-align:left;cursor:pointer;color:inherit}
+@media (max-width:1100px){.rv{grid-template-columns:minmax(0,1fr)}.rv-index{position:static;max-height:none}.rv-index .scroll{max-height:300px}}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.qhead{padding:16px 18px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between}
+.qhead h2{margin:0;font-size:22px}
+.qsrc{font-size:14.5px;color:var(--muted)}
+.qtext{margin:12px 18px 0;padding:12px 14px;background:#FAFAFA;border:1px solid var(--line);border-radius:var(--r);max-width:92ch}
+.qtext .lab{display:block;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);margin-bottom:2px}
+.ans{padding:16px 18px}
+.ans-view{white-space:pre-wrap;overflow-wrap:anywhere;font-size:17px;line-height:1.55;padding:2px 0;max-width:86ch}
+#ans-edit{font-size:17px;min-height:260px;max-width:86ch}
+mark.miss{background:var(--red-bg);color:var(--red);font-weight:bold;padding:0 5px;border-radius:3px;font-size:.9em}
+mark.atty{background:var(--blue-bg);color:var(--blue);padding:0 5px;border-radius:3px;font-style:italic;font-size:.92em}
+mark.blank{background:var(--grey-bg);color:var(--ink);padding:0 4px;border-radius:3px;box-shadow:inset 0 -1px 0 var(--line-strong)}
+.desig{margin:10px 0 0;font-style:italic;color:var(--muted);max-width:86ch;font-size:15px}
+.needs{margin-top:14px;padding:10px 14px;border-radius:var(--r);background:var(--red-bg);color:#7E1A12;max-width:86ch}
+.needs ul{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.needs li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center}
+.needs .muted{color:#9C5048}
+.needs .btn{border-color:var(--red-line)}
+.tools{margin-top:14px}
+.tools select,.pick select{width:auto;max-width:100%}
+.qfoot{border-top:1px solid var(--line);padding:12px 18px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center}
+.signoff{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* supplemental */
+.supp .gbody{display:flex;flex-direction:column;gap:12px}
+.supp .callout{margin:0}
+.sugg{font-size:15px}
+
+/* tables and checklists */
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.tbl thead th{font-weight:normal;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+.tbl tbody th{font-weight:normal;width:56%}
+.tbl tr:last-child th,.tbl tr:last-child td{border-bottom:0}
+.tbl small{display:block;color:var(--muted);font-size:13.5px}
+.tbl td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.scrollx{overflow-x:auto}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px;margin-bottom:18px}
+.grid2>.card,.grid2>.stack>.card{margin:0}
+.stack{display:flex;flex-direction:column;gap:18px;min-width:0}
+.checks{margin:0;padding:0;list-style:none}
+.checks li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line)}
+.checks li:first-child{border-top:0}
+.checks input{margin-top:4px}
+.checks label{cursor:pointer;min-width:0}
+.checks small{display:block;color:var(--muted);font-size:13.5px}
+.ready{display:flex;flex-direction:column;gap:8px}
+.ready>div{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 10px;align-items:center}
+
+/* documents */
+.docbar{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin:6px 0 12px}
+.docbar h2{margin:0;font-size:19px}
+.paper-wrap{overflow-x:auto;background:var(--desk);border-radius:var(--r);padding:22px}
+.paper{background:#FFFFFF;color:#000000;box-shadow:0 1px 3px rgba(0,0,0,.12),0 6px 24px rgba(0,0,0,.06);width:8.5in;min-height:11in;margin:0 auto;padding:1in;font-family:var(--f);font-size:12pt;line-height:1.45}
+@media (max-width:980px){.paper{width:100%;min-height:0;padding:26px 20px;font-size:11pt}.paper-wrap{padding:10px}}
+.tabs{display:flex;flex-wrap:wrap;gap:20px;border-bottom:1px solid var(--line)}
+.tab{border:0;border-bottom:2px solid transparent;background:none;padding:6px 0;margin-bottom:-1px;cursor:pointer;font-size:15px;color:var(--muted)}
+.tab.on{border-color:var(--black);color:var(--ink);font-weight:bold}
+.mlist2{list-style:none;margin:0;padding:6px}
+.mlist2 label{display:flex;gap:10px;padding:9px 12px;cursor:pointer;align-items:flex-start;border-radius:var(--r)}
+.mlist2 label:hover{background:var(--hover)}
+.mlist2 input{margin-top:4px}
+.mlist2 li.on label{background:var(--sel)}
+.mlist2 small{display:block;color:var(--muted);font-size:14px}
+.clauses{list-style:none;margin:0;padding:0}
+.clauses li{padding:10px 0;border-top:1px solid var(--line)}
+.clauses li:first-child{border-top:0;padding-top:0}
+.clauses p{margin:4px 0 6px;max-width:84ch}
+
+/* forms library */
+.libq{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);margin-bottom:6px}
+.libq summary{cursor:pointer;padding:8px 14px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}
+.libq summary b{min-width:3.6em}
+.libq .in{padding:10px 14px 16px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line)}
+.code{font-family:var(--mono)!important;font-size:13.5px!important}
+.tpl-prev{white-space:pre-wrap;border-radius:var(--r);padding:10px 12px;background:#FAFAFA;border:1px solid var(--line);overflow-wrap:anywhere}
+.help code{font-family:var(--mono);font-size:13px;background:var(--grey-bg);padding:0 4px;border-radius:3px}
+.help table{min-width:480px}
+
+.returnbar{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--blue-bg);color:#1B3F84;border:1px solid var(--blue-line);border-radius:var(--r);padding:6px 6px 6px 14px;box-shadow:0 6px 20px rgba(0,0,0,.12);max-width:calc(100% - 32px)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--black);color:var(--white);padding:8px 16px;border-radius:var(--r);z-index:60;max-width:calc(100% - 32px);font-size:15px}
+
+@media print{
+  @page{size:8.5in 11in;margin:1in}
+  body{background:#FFFFFF}
+  #topbar,.rail,.returnbar,.toast,main>*:not(.print-root){display:none!important}
+  main{padding:0}
+  .print-root>*:not(.paper-wrap){display:none!important}
+  .paper-wrap{overflow:visible;padding:0;border:0;background:none}
+  .paper{box-shadow:none;width:auto;min-height:0;padding:0}
+}
+.green-text{color:var(--green)}
+.amber-text{color:var(--amber)}
+.red-text{color:var(--red)}
+</style>
+
+<header id="topbar"></header>
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Tasks"></nav>
+  <main id="main"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<noscript><p style="padding:20px">This tool needs JavaScript turned on in the browser.</p></noscript>
+
+<script>
+(() => {
+'use strict';
+
+/* ======================================================================
+   Interrogatory & Motion Drafter
+   Plain HTML, CSS and JavaScript. No server, no AI service, no libraries.
+   Matters are kept in this browser on the office computer and can be
+   saved as files in the case folder.
+   ====================================================================== */
+
+const LOCAL = true;  // this copy offers Word downloads, printing and file saving wherever it is opened
+const KEY = 'imd.';
+const store = {
+  get(k){ try{ const v = localStorage.getItem(KEY + k); return v ? JSON.parse(v) : null; }catch(e){ return null; } },
+  set(k, v){ try{ localStorage.setItem(KEY + k, JSON.stringify(v)); return true; }catch(e){ return false; } },
+  del(k){ try{ localStorage.removeItem(KEY + k); }catch(e){} }
+};
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+function getPath(o, p){ return p.split('.').reduce((a, k) => a == null ? undefined : a[k], o); }
+function setPath(o, p, v){
+  const ks = p.split('.'); let a = o;
+  for(let i = 0; i < ks.length - 1; i++){
+    const k = ks[i];
+    if(a[k] == null || typeof a[k] !== 'object') a[k] = /^\d+$/.test(ks[i + 1]) ? [] : {};
+    a = a[k];
+  }
+  a[ks[ks.length - 1]] = v;
+}
+const isEmpty = v => v == null || (typeof v === 'string' && v.trim() === '') || (Array.isArray(v) && v.length === 0);
+const num = v => { const s = String(v ?? '').replace(/[$,\s]/g, ''); if(s === '') return null; const n = Number(s); return isFinite(n) ? n : null; };
+
+/* ---------- dates (calendar days, computed in UTC to avoid time-zone drift) ---------- */
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function pd(s){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])) : null; }
+function iso(d){ return d.toISOString().slice(0, 10); }
+function addDays(s, n){ const d = pd(s); if(!d) return ''; d.setUTCDate(d.getUTCDate() + n); return iso(d); }
+function rollFwd(s){ const d = pd(s); if(!d) return ''; while(d.getUTCDay() === 0 || d.getUTCDay() === 6) d.setUTCDate(d.getUTCDate() + 1); return iso(d); }
+function isWeekend(s){ const d = pd(s); return d ? (d.getUTCDay() === 0 || d.getUTCDay() === 6) : false; }
+function fDate(s){ const d = pd(s); return d ? `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}` : s; }
+function fDay(s){ const d = pd(s); return d ? `${DOW[d.getUTCDay()]}, ${fDate(s)}` : ''; }
+function fShort(s){ const d = pd(s); return d ? `${MONTHS[d.getUTCMonth()].slice(0, 3)}. ${d.getUTCDate()}` : ''; }
+function todayISO(){ const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; }
+function daysUntil(s){ const a = pd(todayISO()), b = pd(s); return (a && b) ? Math.round((b - a) / 86400000) : null; }
+function fTime(s){ const m = /^(\d{1,2}):(\d{2})/.exec(s || ''); if(!m) return s; let h = +m[1]; const ap = h >= 12 ? 'p.m.' : 'a.m.'; h = h % 12 || 12; return `${h}:${m[2]} ${ap}`; }
+function fMoney(v){ const n = num(v); return n == null ? String(v) : '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
+/* ======================================================================
+   INTAKE SCHEMA
+   Each field has a path (k), label (l) and type (t). Lists hold repeating rows.
+   Adding a field here adds it to the screen; templates can then use it.
+   ====================================================================== */
+const COUNTIES = ['Atlantic','Bergen','Burlington','Camden','Cape May','Cumberland','Essex','Gloucester','Hudson','Hunterdon','Mercer','Middlesex','Monmouth','Morris','Ocean','Passaic','Salem','Somerset','Sussex','Union','Warren'];
+const DIRS = [['north','North'],['south','South'],['east','East'],['west','West']];
+const empYes = M => M.client?.employed === 'yes';
+const retYes = M => empYes(M) && M.client?.returned === 'yes';
+const pipYes = M => M.client?.pip === 'yes';
+
+const SCHEMA = {
+  matter: [
+    {title: 'Caption', note: 'Enter the parties exactly as they appear on the Complaint.', fields: [
+      {k: 'caption.plaintiff', l: 'Plaintiff', w: 'full'},
+      {k: 'caption.defendants', l: 'Defendants', t: 'area', w: 'full', h: 'One per line, as captioned. Include fictitious parties if they are named.'},
+      {k: 'caption.county', l: 'Venue county', t: 'select', o: COUNTIES},
+      {k: 'caption.docket', l: 'Docket number', h: 'Example: MID-L-004812-26'},
+      {k: 'caption.caseType', l: 'Case type', t: 'select', o: [['auto','Motor vehicle accident'],['other','Other personal injury']], h: 'Motor vehicle cases also answer Questions 25 to 37.'}
+    ]},
+    {title: 'Key dates', note: 'Deadlines on the Finish screen and in the motion papers are calculated from these dates.', fields: [
+      {k: 'caption.answerServed', l: "Date defendant's Answer was served", t: 'date', h: 'Form A is deemed served on plaintiff that day. R. 4:17-1(b)(2).'},
+      {k: 'caption.discoveryEnd', l: 'Discovery end date', t: 'date', h: 'Optional. Sets the cutoff for amended answers under R. 4:17-7.'}
+    ]}
+  ],
+  police: [
+    {title: 'Report', note: 'Copy these from the NJTR-1 crash report, or from the incident report in a non-vehicle case.', fields: [
+      {k: 'police.reportNo', l: 'Report number'},
+      {k: 'police.agency', l: 'Police department'},
+      {k: 'police.officer', l: 'Investigating officer', h: 'Name and badge number'},
+      {k: 'police.date', l: 'Accident date', t: 'date'},
+      {k: 'police.time', l: 'Time', t: 'time'},
+      {k: 'police.municipality', l: 'Municipality'},
+      {k: 'police.location', l: 'Location', w: 'full', h: 'Road and nearest cross street'}
+    ]},
+    {title: 'Conditions', fields: [
+      {k: 'police.weather', l: 'Weather', t: 'select', o: ['Clear','Cloudy','Rain','Snow','Fog','Sleet or hail']},
+      {k: 'police.light', l: 'Light', t: 'select', o: ['Daylight','Dawn','Dusk','Dark, street lights on','Dark, no street lights']},
+      {k: 'police.surface', l: 'Road surface', t: 'select', o: ['Dry','Wet','Snowy','Icy','Slush']}
+    ]},
+    {title: 'Vehicles and movement', auto: true, fields: [
+      {k: 'police.plaintiffVehicle', l: "Plaintiff's vehicle", h: 'Year, make and model'},
+      {k: 'police.defendantVehicle', l: "Defendant's vehicle"},
+      {k: 'police.plaintiffRoad', l: 'Road plaintiff was on', h: 'Name the kind of road: Route 35, a state highway'},
+      {k: 'police.plaintiffDirection', l: 'Direction of travel', t: 'select', o: DIRS},
+      {k: 'police.intersection', l: 'Intersection', t: 'select', o: [['none','Not at an intersection'],['controlled','Controlled intersection'],['uncontrolled','Uncontrolled intersection']]},
+      {k: 'police.trafficControls', l: 'Traffic controls', t: 'area', w: 'full', h: 'Signals, signs or officers, and where each was'},
+      {k: 'police.pointOfImpact', l: 'Point of impact', t: 'area', w: 'full'},
+      {k: 'police.contactPoints', l: 'Parts of the vehicles that made contact', t: 'area', w: 'full'},
+      {k: 'police.restPositions', l: 'Where each vehicle came to rest', t: 'area', w: 'full', h: 'Include distances in feet if the report gives them'}
+    ]},
+    {title: 'Charges and witnesses', fields: [
+      {k: 'police.defendantSummons', l: 'Summons issued to defendant', w: 'full', h: 'Statute and description, for example N.J.S.A. 39:4-97 (careless driving). Leave blank if none.'},
+      {k: 'police.plaintiffCharged', l: 'Was plaintiff charged?', t: 'yn', auto: true},
+      {k: 'police.plaintiffChargeDetails', l: 'Charge, plea and disposition', w: 'full', show: M => M.police?.plaintiffCharged === 'yes'},
+      {k: 'police.witnesses', l: 'Witnesses listed in the report', t: 'list', item: 'Witness', fields: [
+        {k: 'name', l: 'Name'}, {k: 'address', l: 'Address'}, {k: 'relationship', l: 'Relationship to plaintiff', h: 'Usually none'}
+      ]}
+    ]}
+  ],
+  medical: [
+    {title: 'Diagnoses', note: 'Use the diagnoses as the records state them.', fields: [
+      {k: 'medical.injuries', l: 'Injuries diagnosed', t: 'area', w: 'full'},
+      {k: 'medical.permanent', l: 'Injuries claimed to be permanent', t: 'area', w: 'full', h: "From the treating physician's records or certification of permanency"}
+    ]},
+    {title: 'Treating providers', note: 'One entry per provider. This list feeds Questions 5, 7, 8 and 13 and the HIPAA authorization checklist.', fields: [
+      {k: 'medical.providers', l: 'Providers', t: 'list', item: 'Provider', fields: [
+        {k: 'name', l: 'Provider name', w: 'full'},
+        {k: 'address', l: 'Address', w: 'full'},
+        {k: 'kind', l: 'Type', t: 'select', o: ['Emergency department','Hospital admission','Primary care','Orthopedics','Neurology','Physical therapy','Chiropractic','Pain management','Imaging','Other']},
+        {k: 'first', l: 'First visit', t: 'date'},
+        {k: 'ongoing', l: 'Still treating?', t: 'yn'},
+        {k: 'last', l: 'Last visit', t: 'date', show: it => it.ongoing !== 'yes'},
+        {k: 'frequency', l: 'How often', h: 'For example, twice weekly', show: it => it.ongoing === 'yes'},
+        {k: 'admit', l: 'Admitted', t: 'date', show: it => it.kind === 'Hospital admission'},
+        {k: 'discharge', l: 'Discharged', t: 'date', show: it => it.kind === 'Hospital admission'},
+        {k: 'treatment', l: 'Nature of treatment', w: 'full'},
+        {k: 'billed', l: 'Amount billed', t: 'money'},
+        {k: 'paid', l: 'Amount paid', t: 'money'},
+        {k: 'payer', l: 'Paid by', h: 'PIP, health insurer, plaintiff'},
+        {k: 'report', l: 'Written report on file?', t: 'yn'}
+      ]}
+    ]},
+    {title: 'Diagnostic tests', fields: [
+      {k: 'medical.tests', l: 'Tests', t: 'list', item: 'Test', fields: [
+        {k: 'type', l: 'Test', w: 'full'}, {k: 'facility', l: 'Where performed'}, {k: 'address', l: 'Address'},
+        {k: 'date', l: 'Date', t: 'date'}, {k: 'result', l: 'What it showed', t: 'area', w: 'full'}
+      ]}
+    ]},
+    {title: 'Pre-existing conditions', note: 'Shown because the attorney is claiming aggravation.', show: M => M.attorney?.aggravation === 'yes', fields: [
+      {k: 'medical.priors', l: 'Conditions claimed aggravated', t: 'list', item: 'Condition', fields: [
+        {k: 'condition', l: 'Condition', w: 'full'}, {k: 'provider', l: 'Treating provider'}, {k: 'address', l: 'Address'}
+      ]}
+    ]}
+  ],
+  client: [
+    {title: 'Identity', fields: [
+      {k: 'client.fullName', l: 'Full legal name', ask: 'Your full legal name, and any other names you have used'},
+      {k: 'client.dob', l: 'Date of birth', t: 'date', ask: 'Your date of birth'},
+      {k: 'client.address', l: 'Present address', w: 'full', ask: 'Your current home address'},
+      {k: 'client.ssnLast4', l: 'SSN, last four digits', h: 'Only the last four digits are kept in this tool.', ask: 'The last four digits of your Social Security number'},
+      {k: 'client.medicare', l: 'Medicare beneficiary?', t: 'yn', ask: 'Are you on Medicare? If yes, please send us a copy of your Medicare card.'},
+      {k: 'client.medicareNo', l: 'Medicare number', show: M => M.client?.medicare === 'yes'}
+    ]},
+    {title: "The accident, in the client's words", fields: [
+      {k: 'client.role', l: 'Plaintiff was', t: 'select', auto: true, o: [['the operator of','The driver'],['the owner and operator of','The owner and driver'],['a passenger in','A passenger']], ask: 'Were you the driver or a passenger? Do you own the vehicle?'},
+      {k: 'client.version', l: "Client's account of how it happened", t: 'area', w: 'full', rows: 5, h: 'Write it in the third person, for example: Plaintiff was stopped at a red light...', ask: 'In your own words, describe how the accident happened.'},
+      {k: 'client.presentComplaints', l: 'Present complaints', t: 'area', w: 'full', h: 'Symptoms the client has today', ask: 'What pain or problems from the accident do you still have today?'}
+    ]},
+    {title: 'Work and income', fields: [
+      {k: 'client.employed', l: 'Employed at the time?', t: 'yn', ask: "Were you working when the accident happened? If yes, give your employer's name and address, your job and duties, your average weekly pay, the dates you missed work, and the pay you lost.", askWith: ['client.employer','client.employerAddress','client.position','client.avgWeekly','client.timeLost','client.wagesLost']},
+      {k: 'client.employer', l: 'Employer', show: empYes},
+      {k: 'client.employerAddress', l: 'Employer address', show: empYes},
+      {k: 'client.position', l: 'Position and duties', w: 'full', show: empYes},
+      {k: 'client.avgWeekly', l: 'Average weekly wage', t: 'money', show: empYes},
+      {k: 'client.timeLost', l: 'Time lost from work', h: 'Dates, for example March 16, 2026 through April 27, 2026', show: empYes},
+      {k: 'client.wagesLost', l: 'Wages lost', t: 'money', show: empYes},
+      {k: 'client.returned', l: 'Returned to work?', t: 'yn', show: empYes, ask: 'Have you gone back to work? If yes, give the employer, your job, and your current weekly pay.', askWith: ['client.presentEmployer','client.presentPosition','client.presentWages']},
+      {k: 'client.presentEmployer', l: 'Present employer', show: retYes},
+      {k: 'client.presentEmployerAddress', l: 'Present employer address', show: retYes},
+      {k: 'client.presentPosition', l: 'Present position and duties', w: 'full', show: retYes},
+      {k: 'client.presentWages', l: 'Present weekly wage', t: 'money', show: retYes},
+      {k: 'client.otherIncomeLoss', l: 'Other income loss', t: 'area', w: 'full', h: 'Leave blank if none', ask: 'Did you lose any other income, such as business or side work? Describe it and give amounts.'},
+      {k: 'client.otherExpenses', l: 'Other losses or expenses', t: 'area', w: 'full', h: 'Leave blank if none', ask: 'List any other expenses from the accident, such as co-pays, prescriptions, travel to doctors, or help at home.'}
+    ]},
+    {title: 'Witnesses and evidence', fields: [
+      {k: 'client.witnesses', l: 'Eyewitnesses the client knows of', t: 'list', item: 'Eyewitness', h: 'Witnesses already entered from the police report are included automatically.', ask: "Did anyone see the accident? Give each person's name, address, and how you know them.", fields: [
+        {k: 'name', l: 'Name'}, {k: 'address', l: 'Address'}, {k: 'relationship', l: 'Relationship to plaintiff'}, {k: 'interest', l: 'Interest in the lawsuit'}
+      ]},
+      {k: 'client.others', l: 'Other people with knowledge', t: 'list', item: 'Person', ask: 'Who else knows about the accident or your injuries, such as family or coworkers?', fields: [
+        {k: 'name', l: 'Name'}, {k: 'address', l: 'Address'}, {k: 'knowledge', l: 'What they know', w: 'full'}
+      ]},
+      {k: 'client.photos', l: 'Photographs and recordings', t: 'list', item: 'Set', ask: 'Do you have photos or videos of the vehicles, the scene, or your injuries? Who took them, and when?', fields: [
+        {k: 'count', l: 'How many'}, {k: 'shows', l: 'What they show', w: 'full'}, {k: 'date', l: 'Date taken', t: 'date'},
+        {k: 'by', l: 'Taken by'}, {k: 'possession', l: 'Who has them now'}
+      ]}
+    ]},
+    {title: 'Statements and history', fields: [
+      {k: 'client.admissionsYN', l: 'Did the defendant say anything about the accident?', t: 'yn', ask: 'Did the other driver, or anyone for the defendant, say anything about what happened or who was at fault? What was said, when, where, and who heard it?', askWith: ['client.admissions']},
+      {k: 'client.admissions', l: 'What was said, when, where, and who was present', t: 'area', w: 'full', show: M => M.client?.admissionsYN === 'yes'},
+      {k: 'client.commsYN', l: 'Any other conversations with the defendant?', t: 'yn', ask: 'Have you spoken with the defendant about the accident since it happened?', askWith: ['client.comms']},
+      {k: 'client.comms', l: 'Date, people present, and a summary', t: 'area', w: 'full', show: M => M.client?.commsYN === 'yes'},
+      {k: 'client.convicted', l: 'Ever convicted of a crime?', t: 'yn', ask: 'Have you ever been convicted of a crime? If yes, give the date, place, and what it was for.', askWith: ['client.convictionDetails']},
+      {k: 'client.convictionDetails', l: 'Date, place and nature', w: 'full', show: M => M.client?.convicted === 'yes'}
+    ]},
+    {title: 'Driving details', auto: true, fields: [
+      {k: 'client.sawBefore', l: 'Saw the other vehicle before impact?', t: 'yn', ask: 'Did you see the other vehicle before the crash? If yes, about how many seconds before?', askWith: ['client.sawElapsed']},
+      {k: 'client.sawElapsed', l: 'Time between first seeing it and impact', h: 'For example, two seconds', show: M => M.client?.sawBefore === 'yes'},
+      {k: 'client.speedImpact', l: "Plaintiff's speed at impact", ask: 'How fast were you going at the moment of impact? How fast was the other vehicle going?', askWith: ['client.otherSpeedImpact']},
+      {k: 'client.otherSpeedImpact', l: "Defendant's speed at impact", h: 'Write Unknown if the client cannot say'},
+      {k: 'client.speedsDistances', l: 'Speeds and distances when first observed (Question 30)', t: 'area', w: 'full', ask: 'When you first saw the other vehicle, how fast was each vehicle going, and how far apart were you?'},
+      {k: 'client.malfunction', l: 'Claiming a vehicle malfunction?', t: 'yn'},
+      {k: 'client.malfunctionDetails', l: 'Malfunction details (Question 28, items a to g)', t: 'area', w: 'full', show: M => M.client?.malfunction === 'yes'},
+      {k: 'client.uncontrolledDetails', l: 'Uncontrolled intersection details (Question 29)', t: 'area', w: 'full', h: 'Who entered first, whether plaintiff stopped, and speed entering', show: M => M.police?.intersection === 'uncontrolled'}
+    ]},
+    {title: 'Insurance', auto: true, fields: [
+      {k: 'client.pip', l: 'Auto insurance with PIP?', t: 'yn', ask: 'What company insured your car, and what is the policy number? Please send us the declaration page.', askWith: ['client.insCarrier','client.policyNo']},
+      {k: 'client.insCarrier', l: 'Insurance carrier', show: pipYes},
+      {k: 'client.insAddress', l: 'Carrier address', show: pipYes},
+      {k: 'client.policyNo', l: 'Policy number', show: pipYes},
+      {k: 'client.namedInsured', l: 'Named insured', show: pipYes},
+      {k: 'client.propertyDamage', l: 'Also claiming property damage to the vehicle?', t: 'yn', h: 'If yes, Form B Questions 1 to 18 must also be answered.'}
+    ]},
+    {title: 'Background the defense often asks about', note: 'These feed the standard answers on the Supplemental questions screen. Collecting them on the questionnaire saves a call to the client.', fields: [
+      {k: 'client.trip', l: 'Where plaintiff was coming from and going', w: 'full', auto: true, ask: 'Where were you coming from, and where were you going, when the accident happened?'},
+      {k: 'client.phoneUse', l: 'Using a phone or other device at the time?', t: 'yn', ask: 'Were you using a cell phone or any other device at the time of the accident? If yes, how?', askWith: ['client.phoneDetails']},
+      {k: 'client.phoneDetails', l: 'How the phone or device was being used', w: 'full', show: M => M.client?.phoneUse === 'yes'},
+      {k: 'client.substances', l: 'Alcohol, drugs or medication within 24 hours before?', t: 'yn', ask: 'In the 24 hours before the accident, did you have any alcohol, drugs, or medication? If yes, what, how much, and when?', askWith: ['client.substanceDetails']},
+      {k: 'client.substanceDetails', l: 'What, how much, and when', w: 'full', show: M => M.client?.substances === 'yes'},
+      {k: 'client.licenseRestrictions', l: "Driver's license restrictions or corrective lenses", w: 'full', auto: true, ask: 'Does your license require glasses or contacts, or have any other restriction? Were you wearing them?'},
+      {k: 'client.priorAccidents', l: 'Prior accidents or injuries, last ten years', t: 'area', w: 'full', h: 'Write None if there were none', ask: 'In the ten years before this accident, were you in any other accident or injured in any way? Describe each.'},
+      {k: 'client.priorClaims', l: 'Prior claims or lawsuits', t: 'area', w: 'full', h: "Include workers' compensation. Write None if there were none", ask: "Have you ever made an injury claim or filed a lawsuit, including a workers' compensation claim? Describe each."},
+      {k: 'client.pcp', l: 'Primary care physician, last ten years', w: 'full', ask: 'Who has been your primary care doctor over the last ten years? Give names and addresses.'},
+      {k: 'client.pharmacy', l: 'Pharmacies used', w: 'full', ask: 'Which pharmacies have you used in the last ten years?'},
+      {k: 'client.healthInsurer', l: 'Health insurer', ask: 'Who is your health insurance company?'},
+      {k: 'client.socialMedia', l: 'Social media accounts', t: 'area', w: 'full', h: 'Platform and user name for each', ask: 'Which social media accounts do you have (Facebook, Instagram, TikTok, X, or others)? Give the user name for each. Please do not delete or change anything on them.'},
+      {k: 'client.employmentHistory', l: 'Employment history, last ten years', t: 'area', w: 'full', ask: 'List your employers for the last ten years, with dates and your job at each.'}
+    ]}
+  ],
+  attorney: [
+    {title: 'Claims', fields: [
+      {k: 'attorney.aggravation', l: 'Claiming aggravation of a pre-existing condition?', t: 'yn', h: 'If yes, list the conditions on the Medical records screen.'},
+      {k: 'attorney.threshold', l: 'Lawsuit threshold', t: 'select', auto: true, o: [['limitation','Limitation on lawsuit (verbal threshold)'],['none','No limitation on lawsuit'],['unknown','Not yet determined']], h: 'Controls the physician certification reminder. N.J.S.A. 39:6A-8(a).'},
+      {k: 'attorney.statutes', l: 'Additional statutes or ordinances (Question 22)', t: 'area', w: 'full', h: 'The summons from the police report is included automatically.'},
+      {k: 'attorney.statementsYN', l: 'Statements obtained from non-parties? (Question 21)', t: 'yn'},
+      {k: 'attorney.statements', l: 'Statement details (Question 21, items a to g)', t: 'area', w: 'full', show: M => M.attorney?.statementsYN === 'yes'},
+      {k: 'attorney.documentsExtra', l: 'Additional documents to identify (Question 15)', t: 'area', w: 'full', h: 'One per line. The police report, records, photographs and declaration sheet are listed automatically.'}
+    ]},
+    {title: 'Expert witnesses', note: 'Treating physicians are described in Question 23 automatically. Add retained experts here.', fields: [
+      {k: 'attorney.experts', l: 'Experts', t: 'list', item: 'Expert', fields: [
+        {k: 'name', l: 'Name'}, {k: 'address', l: 'Address'}, {k: 'specialty', l: 'Area of expertise'}, {k: 'report', l: 'Report date', t: 'date'}
+      ]}
+    ]}
+  ]
+};
+
+/* index of every field path, used to label and locate missing information */
+const FIELD_INDEX = {};
+const INTAKE = ['matter','police','medical','client','attorney'];
+INTAKE.forEach(step => SCHEMA[step].forEach(g => g.fields.forEach(f => {
+  FIELD_INDEX[f.k] = {l: f.l, step, t: f.t || 'text', list: f.t === 'list', item: f.item};
+  if(f.t === 'list') f.fields.forEach(sf => { FIELD_INDEX[`${f.k}.*.${sf.k}`] = {l: sf.l, step, t: sf.t || 'text'}; });
+})));
+Object.assign(FIELD_INDEX, {
+  'calc.ssnText': {jump: 'client.ssnLast4'},
+  'medical.providers.*.owed': {jump: '.billed'},
+  'calc.totalBilled': {jump: 'medical.providers'},
+  'served.date': {l: 'Date Form A answers were served', step: 'finish', t: 'date'}
+});
+const norm = p => p.replace(/\.\d+(?=\.|$)/g, '.*');
+function missRecord(path){
+  let meta = FIELD_INDEX[norm(path)];
+  if(meta && meta.jump){
+    path = meta.jump.startsWith('.') ? path.replace(/\.[^.]+$/, meta.jump) : meta.jump;
+    meta = FIELD_INDEX[norm(path)];
+  }
+  let label = meta ? meta.l : path;
+  const m = /^(.*)\.(\d+)\.[^.]+$/.exec(path);
+  if(m){ const lm = FIELD_INDEX[norm(m[1])]; if(lm && lm.item) label = `${lm.item} ${+m[2] + 1}: ${meta ? meta.l : ''}`; }
+  else if(meta && meta.list) label = `${meta.l} (add at least one)`;
+  return {path, label, step: meta ? meta.step : null};
+}
+
+/* ======================================================================
+   FORM A (R. Appendix II, text effective September 1, 2020)
+   Question wording is court-prescribed and stays editable in the Forms
+   library so the office can update it when the rule is amended.
+   src = where the answer comes from. tpl = the answer template.
+   ====================================================================== */
+const FORM_A = [
+ {n:1, s:'Identity, birth date, SSN, Medicare', src:['client'],
+  text:`Full name, present address, date of birth, Social Security number, and Medicare number, if applicable. If Medicare number is applicable, attach a copy of the Medicare card.`,
+  tpl:`{{client.fullName}}
+{{client.address}}
+Date of birth: {{client.dob|date}}
+Social Security number: {{calc.ssnText}}
+{{#if client.medicare == yes}}Plaintiff is a Medicare beneficiary. Medicare number: {{client.medicareNo}}. A copy of plaintiff's Medicare card is annexed hereto.{{else}}Plaintiff is not a Medicare beneficiary.{{/if}}`},
+ {n:2, s:'How the accident happened', src:['police','client'],
+  text:`Describe in detail your version of the accident or occurrence setting forth the date, location, time and weather.`,
+  tpl:`On {{police.date|date}}, at approximately {{police.time|time}}, plaintiff was involved in {{calc.incidentNoun}} at or near {{police.location}}, {{police.municipality}}, New Jersey.{{#if calc.isAuto}} Plaintiff was {{client.role}} a {{police.plaintiffVehicle}} proceeding {{police.plaintiffDirection}}bound on {{police.plaintiffRoad}}.{{/if}} The weather was {{police.weather|lower}}.
+
+{{client.version}}`},
+ {n:3, s:'Injuries', src:['medical'],
+  text:`Detailed description of nature, extent and duration of any and all injuries.`,
+  tpl:`As a result of the accident, plaintiff sustained the following injuries: {{medical.injuries}}
+
+The nature, extent and duration of these injuries are more fully described in the records and reports of plaintiff's treating health care providers, which are annexed hereto or will be supplied upon receipt.{{#if calc.current}} Plaintiff remains under active treatment, and the full duration of the injuries is not yet known.{{/if}}`},
+ {n:4, s:'Permanent injuries, present complaints', src:['medical','client'],
+  text:`Detailed description of injury or condition claimed to be permanent together with all present complaints.`,
+  tpl:`{{medical.permanent}}
+
+Present complaints: {{client.presentComplaints}}
+
+Plaintiff will rely upon the records, reports and testimony of plaintiff's treating physicians and any expert witnesses regarding permanency. Reports will be supplied in accordance with the Rules of Court.`},
+ {n:5, s:'Hospital confinement', src:['medical'],
+  text:`If confined to a hospital, state its name and address, and dates of admission and discharge.`,
+  tpl:`{{#if calc.admissions}}{{#each calc.admissions}}{{.name}}, {{.address}}. Admitted {{.admit|date}}; discharged {{.discharge|date}}.
+{{/each}}{{else}}Plaintiff was not confined to a hospital.{{#each calc.er}} Plaintiff was treated and released from {{.name}}, {{.address}}, on {{.first|date}}.{{/each}}{{/if}}`},
+ {n:6, s:'Diagnostic tests', src:['medical'],
+  text:`If any diagnostic tests were performed, state the type of test performed, name and address of place where performed, date each test was performed and what each test disclosed. Attach a copy of the test results.`,
+  tpl:`{{#if medical.tests}}{{#each medical.tests}}({{@a}}) {{.type}}, performed on {{.date|date}} at {{.facility}}, {{.address}}. Result: {{.result}}
+{{/each}}
+Copies of the test results are annexed hereto.{{else}}No diagnostic tests have been performed to date.{{/if}}`},
+ {n:7, s:'Health care providers', src:['medical'],
+  text:`If treated by any health care provider, state the name and present address of each health care provider, the dates and places where treatments were received and the date of last treatment. Attach true copies of all written reports provided to you by any such health care provider whom you propose to have testify in your behalf.`,
+  tpl:`{{#if calc.providers}}{{#each calc.providers}}({{@a}}) {{.name}}, {{.address}}
+Dates of treatment: {{.first|date}} through {{#if .ongoing == yes}}the present (treatment is ongoing){{else}}{{.last|date}} (date of last treatment){{/if}}. Treatment: {{.treatment}}.
+
+{{/each}}Copies of all written reports provided by any health care provider whom plaintiff proposes to have testify are annexed hereto. Any reports received hereafter will be served promptly upon receipt.{{else}}{{need medical.providers}}{{/if}}`},
+ {n:8, s:'Current treatment', src:['medical'],
+  text:`If still being treated, the name and address of each doctor or health care provider rendering treatment, where and how often treatment is received and the nature of the treatment.`,
+  tpl:`{{#if calc.current}}Plaintiff is presently treating with the following providers:
+{{#each calc.current}}({{@a}}) {{.name}}, {{.address}}. Frequency: {{.frequency}}. Nature of treatment: {{.treatment}}.
+{{/each}}{{else}}Plaintiff is not presently treating.{{/if}}`},
+ {n:9, s:'Aggravation of a prior condition', src:['medical','attorney'],
+  text:`If a previous injury, disease, illness or condition is claimed to have been aggravated, accelerated or exacerbated, specify in detail the nature of each and the name and present address of each health care provider, if any, whoever provided treatment for the condition.`,
+  tpl:`{{#if attorney.aggravation == yes}}Plaintiff claims aggravation of the following pre-existing conditions:
+{{#each medical.priors}}({{@a}}) {{.condition}}. Treating provider: {{.provider}}, {{.address}}.
+{{/each}}{{#if medical.priors}}{{else}}{{need medical.priors}}{{/if}}{{else}}Not applicable. Plaintiff does not presently claim that any previous injury, disease, illness or condition was aggravated, accelerated or exacerbated. Plaintiff reserves the right to amend this answer pursuant to R. 4:17-7.{{/if}}`},
+ {n:10, s:'Employment at the time', src:['client'],
+  text:`If employed at the time of the accident, state: (a) name and address of employer; (b) position held and nature of work performed; (c) average weekly wages for past year; (d) period of time lost from employment, giving dates; and (e) amount of wages lost, if any.`,
+  tpl:`{{#if client.employed == yes}}(a) {{client.employer}}, {{client.employerAddress}}
+(b) {{client.position}}
+(c) Approximately {{client.avgWeekly|money}} per week
+(d) {{client.timeLost}}
+(e) {{client.wagesLost|money}}, to be supplemented with wage documentation{{else}}Not applicable. Plaintiff was not employed at the time of the accident.{{/if}}`},
+ {n:11, s:'Return to employment', src:['client'],
+  text:`If there has been a return to employment or occupation, state: (a) name and address of present employer; (b) position held and nature of work performed; and (c) present weekly wages, earning, income or profit.`,
+  tpl:`{{#if client.employed == no}}Not applicable.{{else}}{{#if client.returned == yes}}(a) {{client.presentEmployer}}, {{client.presentEmployerAddress}}
+(b) {{client.presentPosition}}
+(c) Approximately {{client.presentWages|money}} per week{{else}}Plaintiff has not returned to employment.{{/if}}{{/if}}`},
+ {n:12, s:'Other income loss', src:['client'],
+  text:`If other loss of income, profit or earnings is claimed: (a) state total amount of the loss; (b) give a complete detailed computation of the loss; and (c) state the nature and source of the loss of income, profit and earnings, and the dates of the deprivation.`,
+  tpl:`{{#if client.otherIncomeLoss}}{{client.otherIncomeLoss}}{{else}}Plaintiff does not presently claim any loss of income, profit or earnings other than as set forth in the answer to Interrogatory No. 10.{{/if}}`},
+ {n:13, s:'Medical expenses', src:['medical','client'],
+  text:`Itemize in complete detail any and all moneys expended or expenses incurred for hospitals, doctors, nurses, diagnostic tests or health care providers, x-rays, medicines, care and appliances and state the name and address of each payee and the amount paid and owed each payee.`,
+  tpl:`{{#if calc.providers}}{{#each calc.providers}}({{@a}}) {{.name}}, {{.address}}: billed {{.billed|money}}; paid {{.paidText}}{{#if .billed}}; balance {{.owed|money}}{{/if}}.
+{{/each}}
+Total billed to date: {{calc.totalBilled|money}}.{{/if}}{{#if calc.isAuto}} Plaintiff's medical expenses have been submitted to plaintiff's personal injury protection (PIP) carrier, {{client.insCarrier}}. A copy of the PIP payout ledger will be supplied upon receipt.{{/if}} Plaintiff reserves the right to supplement this answer as additional bills are received.`},
+ {n:14, s:'Other losses and expenses', src:['client'],
+  text:`Itemize any and all other losses or expenses incurred not otherwise set forth.`,
+  tpl:`{{#if client.otherExpenses}}{{client.otherExpenses}}{{else}}None at this time. Plaintiff reserves the right to supplement this answer.{{/if}}`},
+ {n:15, s:'Documents', src:['file','attorney'],
+  text:`Identify all documents that may relate to this action and attach copies of each such document.`,
+  tpl:`Plaintiff identifies the following documents, copies of which are annexed hereto or have been previously exchanged:
+{{#each calc.documents}}({{@a}}) {{.}}
+{{/each}}
+Plaintiff reserves the right to rely upon any document produced by any party or non-party in discovery.`},
+ {n:16, s:'Eyewitnesses', src:['police','client'],
+  text:`State the names and addresses of all eyewitnesses to the accident or occurrence, their relationship to you and their interest in this lawsuit.`,
+  tpl:`{{#if calc.eyewitnesses}}{{#each calc.eyewitnesses}}({{@a}}) {{.name}}, {{.address}}. Relationship to plaintiff: {{.relationship}}. Interest in this lawsuit: {{.interest}}.
+{{/each}}{{else}}Plaintiff is not presently aware of any eyewitnesses other than the parties. Investigation is continuing.{{/if}}`},
+ {n:17, s:'Persons with knowledge', src:['police','client'],
+  text:`State the names and addresses of all persons who have knowledge of any facts relating to the case.`,
+  tpl:`Plaintiff, {{client.fullName}}, {{client.address}}.
+The defendants named in the caption, through their counsel.
+{{#if police.officer}}{{police.officer}}, {{police.agency}}, investigating officer.
+{{/if}}{{#each calc.eyewitnesses}}{{.name}}, {{.address}}, eyewitness.
+{{/each}}{{#each client.others}}{{.name}}, {{.address}}. {{.knowledge}}
+{{/each}}Plaintiff's treating health care providers, identified in the answer to Interrogatory No. 7.`},
+ {n:18, s:'Photographs and recordings', src:['client'],
+  text:`If any photographs, videotapes, audio tapes or other forms of electronic recording, sketches, reproductions, charts or maps were made with respect to anything that is relevant to the subject matter of the complaint, describe: (a) the number of each; (b) what each shows or contains; (c) the date taken or made; (d) the names and addresses of the persons who made them; (e) in whose possession they are at present; and (f) if in your possession, attach a copy, or if not subject to convenient copying, state the location where inspection and copying may take place.`,
+  tpl:`{{#if client.photos}}{{#each client.photos}}({{@a}}) Number: {{.count}}. Contents: {{.shows}}. Date taken: {{.date|date}}. Taken by: {{.by}}. Present possession: {{.possession}}.
+{{/each}}
+Copies are annexed hereto.{{else}}Plaintiff is not presently aware of any photographs, recordings, sketches, charts or maps other than any contained in the police report. Investigation is continuing.{{/if}}`},
+ {n:19, s:'Admissions by defendant', src:['client'],
+  text:`If you claim that the defendant made any admissions as to the subject matter of this lawsuit, state: (a) the date made; (b) the name of the person by whom made; (c) the name and address of the person to whom made; (d) where made; (e) the name and address of each person present at the time the admission was made; (f) the contents of the admission; and (g) if in writing, attach a copy.`,
+  tpl:`{{#if client.admissionsYN == yes}}{{client.admissions}}{{else}}None known at this time.{{/if}}`},
+ {n:20, s:'Communications with defendant', src:['client'],
+  text:`If you or your representative and the defendant have had any oral communication concerning the subject matter of this lawsuit, state: (a) the date of the communication; (b) the name and address of each participant; (c) the name and address of each person present at the time of such communication; (d) where such communication took place; and (e) a summary of what was said by each party participating in the communication.`,
+  tpl:`{{#if client.commsYN == yes}}{{client.comms}}{{else}}{{#if client.admissionsYN == yes}}Other than as set forth in the answer to Interrogatory No. 19, none.{{else}}None.{{/if}}{{/if}}`},
+ {n:21, s:'Non-party statements', src:['attorney'],
+  text:`If you have obtained a statement from any person not a party to this action, state: (a) the name and present address of the person who gave the statement; (b) whether the statement was oral or in writing and if in writing, attach a copy; (c) the date the statement was obtained; (d) if such statement was oral, whether a recording was made, and if so, the nature of the recording and the name and present address of the person who has custody of it; (e) if the statement was written, whether it was signed by the person making it; (f) the name and address of the person who obtained the statement; and (g) if the statement was oral, a detailed summary of its contents.`,
+  tpl:`{{#if attorney.statementsYN == yes}}{{attorney.statements}}{{else}}None at this time.{{/if}}`},
+ {n:22, s:'Statutes and ordinances', src:['police','attorney'],
+  text:`If you claim that the violation of any statute, rule, regulation or ordinance is a factor in this litigation, state the exact title and section.`,
+  tpl:`{{#if police.defendantSummons}}Plaintiff contends that defendant violated {{police.defendantSummons}}, for which defendant was issued a summons by the {{police.agency}}. {{/if}}{{#if attorney.statutes}}{{attorney.statutes}} {{/if}}{{#if calc.isAuto}}Plaintiff further relies upon the applicable provisions of Title 39 of the New Jersey Statutes, N.J.S.A. 39:1-1 et seq.{{/if}} Plaintiff reserves the right to rely upon any additional statute, rule, regulation or ordinance identified in discovery.`},
+ {n:23, s:'Expert witnesses', src:['attorney'],
+  text:`State the names and addresses of any and all proposed expert witnesses. Set forth in detail the qualifications of each expert named and attach a copy of each expert's current resume. Also attach true copies of all written reports provided to you by any such proposed expert witnesses.
+
+With respect to all expert witnesses, including treating physicians, who are expected to testify at trial and with respect to any person who has conducted an examination pursuant to Rule 4:19, who may testify, state each such witness's name, address and area of expertise and attach a true copy of all written reports provided to you.
+
+State the subject matter on which your experts are expected to testify.
+
+State the substance of the facts and opinions to which your experts are expected to testify and a summary of the grounds for each opinion.`,
+  tpl:`{{#if attorney.experts}}{{#each attorney.experts}}({{@a}}) {{.name}}, {{.address}}. Area of expertise: {{.specialty}}.{{#if .report}} Report dated {{.report|date}} annexed hereto.{{/if}}
+{{/each}}
+The qualifications of each expert are set forth in the annexed curricula vitae. The subject matter, the substance of the facts and opinions, and the grounds for each opinion are set forth in the annexed reports.
+
+{{/if}}Plaintiff's treating physicians, identified in the answer to Interrogatory No. 7, may testify at trial regarding their treatment of plaintiff, diagnosis, prognosis, permanency and causation, consistent with their records and reports. Plaintiff will supply the names, qualifications and reports of any additional expert witnesses in accordance with the Rules of Court and any applicable case management order.`},
+ {n:24, s:'Criminal convictions', src:['client'],
+  text:`State whether you have ever been convicted of a crime. If the answer is "yes", state: (a) date; (b) place; and (c) nature.`,
+  tpl:`{{#if client.convicted == yes}}Yes. {{client.convictionDetails}}{{else}}No.{{/if}}`},
+ {n:25, s:'Road and direction', src:['police'],
+  text:`State on what street, highway, road or other place (designate which) and in what general direction (north, south, east or west) your vehicle was proceeding immediately prior to the collision. (You may include a sketch for greater clarity.)`,
+  tpl:`Plaintiff's vehicle was proceeding {{police.plaintiffDirection}}bound on {{police.plaintiffRoad}}, immediately prior to the collision.`},
+ {n:26, s:'Point of impact', src:['police'],
+  text:`With respect to fixed objects at the location of the collision, state as nearly as possible the point of impact. If you included a sketch, place an X thereon to denote the point of impact.
+
+(Note: The term "point of impact" as used in this and other questions has reference to the exact point on the street, highway, road or other place where the vehicles collided or where any pedestrian was struck.)`,
+  tpl:`{{police.pointOfImpact}}`},
+ {n:27, s:'Traffic controls', src:['police'],
+  text:`State whether there were any traffic control devices, signs or police officers at or near the place of the collision. If there were, describe them (i.e., traffic lights, stop sign, police officers, etc.) and state the exact location of each.`,
+  tpl:`{{police.trafficControls}}`},
+ {n:28, s:'Vehicle malfunction', src:['client'],
+  text:`If you contend that there was a malfunction of a motor vehicle or equipment, state: (a) make, model and year of the motor vehicle and whether or not that vehicle was equipped with power brakes and steering; (b) the nature of the malfunction; (c) the date the motor vehicle was purchased and the name and address of the person from whom the motor vehicle was purchased; (d) the date that that portion of the motor vehicle in which the malfunction occurred was last inspected and the name and address of the person inspecting same; (e) the last date prior to the accident that that portion of the motor vehicle was repaired or replaced, the nature and extent of the repairs, the name and address of the person repairing or replacing same; (f) if the motor vehicle was repaired after the accident, state the name and address of the person repairing same and the nature of the repairs; and (g) attach a copy of any repair bills.`,
+  tpl:`{{#if client.malfunction == yes}}{{client.malfunctionDetails}}{{else}}Plaintiff does not contend that there was a malfunction of a motor vehicle or equipment.{{/if}}`},
+ {n:29, s:'Uncontrolled intersection', src:['police','client'],
+  text:`If the collision occurred at an uncontrolled intersection, state: (a) which vehicle entered the intersection first; (b) whether your vehicle came to a full stop before entering the intersection; and (c) if your vehicle did not come to a full stop before entering the intersection, state the speed of your vehicle when it entered the intersection.`,
+  tpl:`{{#if police.intersection == uncontrolled}}{{client.uncontrolledDetails}}{{else}}Not applicable. The collision did not occur at an uncontrolled intersection.{{/if}}`},
+ {n:30, s:'Speeds and distances', src:['client'],
+  text:`For each other vehicle or pedestrian collided with, state, at the time you first observed the other vehicle or pedestrian, (a) your speed and (b) the speed of the other vehicle or the movement, if any, of the pedestrian, and the distance in feet between (c) the front of your vehicle and the point of impact; (d) the front of the other vehicle or pedestrian and the point of impact, and (e) the front of your vehicle and the other vehicle or pedestrian.`,
+  tpl:`{{client.speedsDistances}}`},
+ {n:31, s:'Rest positions', src:['police'],
+  text:`State where each vehicle came to rest after the impact. Include the distance in terms of feet from the point of impact to the point where each vehicle came to rest.`,
+  tpl:`{{police.restPositions}}`},
+ {n:32, s:'Points of contact', src:['police'],
+  text:`For each other vehicle or pedestrian involved, state (a) which part of your vehicle; and (b) which part of the other vehicle or pedestrian came into contact.`,
+  tpl:`{{police.contactPoints}}`},
+ {n:33, s:'Time, weather, visibility, roadway', src:['police'],
+  text:`State the following facts with respect to the collision: (a) time; (b) condition of weather; (c) condition of visibility; and (d) condition of roadway.`,
+  tpl:`(a) Approximately {{police.time|time}}; (b) {{police.weather|lower}}; (c) {{police.light|lower}}; (d) {{police.surface|lower}}.`},
+ {n:34, s:'Observation before impact', src:['client'],
+  text:`For each other vehicle or pedestrian involved, state whether you observed the vehicle or pedestrian prior to the accident? If the answer is "yes," set forth the time that elapsed from the time you first saw the vehicle or pedestrian until the impact occurred.`,
+  tpl:`{{#if client.sawBefore == yes}}Yes. Approximately {{client.sawElapsed}} elapsed between the time plaintiff first observed defendant's vehicle and the impact.{{else}}No.{{/if}}`},
+ {n:35, s:'Speeds at impact', src:['client'],
+  text:`At the time of the impact, state the speeds of all vehicles involved in the collision.`,
+  tpl:`Plaintiff's vehicle: {{client.speedImpact}}. Defendant's vehicle: {{client.otherSpeedImpact}}.`},
+ {n:36, s:'Motor vehicle charges', src:['police'],
+  text:`Were you charged with a motor vehicle violation as a result of the collision? If the answer is "yes", state: (a) charge; (b) plea; and (c) disposition.`,
+  tpl:`{{#if police.plaintiffCharged == yes}}Yes. {{police.plaintiffChargeDetails}}{{else}}No.{{/if}}`},
+ {n:37, s:'Insurance and PIP', src:['client'],
+  text:`Do you have insurance coverage and/or PIP benefits under an applicable policy or policies of automobile insurance? As to each such policy provide the name and address of the insurance carrier, policy number, the named insured and attach a copy of the declaration sheet.
+
+If you are making a claim for property damage to a motor vehicle, provide answers to the uniform interrogatories contained in Form B, questions 1 through 18.`,
+  tpl:`{{#if client.pip == yes}}Yes. Insurance carrier: {{client.insCarrier}}, {{client.insAddress}}. Policy number: {{client.policyNo}}. Named insured: {{client.namedInsured}}. A copy of the declaration sheet is annexed hereto.{{else}}No.{{/if}}{{#if client.propertyDamage == yes}}
+
+Plaintiff's answers to Form B Uniform Interrogatories, Questions 1 through 18, concerning the claim for property damage to plaintiff's motor vehicle, are served herewith.{{/if}}`}
+];
+
+/* R. 4:17-4(a): designate the source of information not within the answerer's personal knowledge */
+const DESIG = {
+  police: `Information concerning the accident that is not within plaintiff's personal knowledge was obtained from {{police.agency}} Crash Investigation Report No. {{police.reportNo}}, a copy of which is maintained at the office of plaintiff's counsel.`,
+  medical: `Medical information that is not within plaintiff's personal knowledge was obtained from the records of the health care providers identified in the answer to Interrogatory No. 7, which are maintained at the office of plaintiff's counsel.`
+};
+
+/* standard language and objections, shared by Form A and supplemental answers */
+const CLAUSES_DEFAULT = [
+  {c: 'answer', t: 'Reserve the right to amend', x: 'Plaintiff reserves the right to amend or supplement this answer in accordance with R. 4:17-7 as discovery continues.'},
+  {c: 'answer', t: 'Refer to medical records', x: "Plaintiff refers to the records and reports of plaintiff's treating health care providers, which are annexed hereto and incorporated herein by reference."},
+  {c: 'answer', t: 'To be supplied', x: 'This information will be supplied upon receipt.'},
+  {c: 'answer', t: 'Unknown at this time', x: 'Unknown at this time. Investigation is continuing.'},
+  {c: 'answer', t: 'Not applicable', x: 'Not applicable.'},
+  {c: 'answer', t: 'Experts to be supplied', x: 'Plaintiff will supply the names, qualifications and reports of any expert witnesses in accordance with the Rules of Court and any applicable case management order.'},
+  {c: 'objection', id: 'ten', t: 'Exceeds ten supplemental questions', x: 'Plaintiff objects to this interrogatory because it exceeds the ten supplemental questions that may be served without leave of court under R. 4:17-1(b)(1).'},
+  {c: 'objection', id: 'subparts', t: 'Contains subparts', x: 'Plaintiff objects to this interrogatory because it contains subparts, and supplemental questions served without leave of court must be without subparts under R. 4:17-1(b)(1). Without waiving that objection, plaintiff answers as follows:'},
+  {c: 'objection', t: 'Overly broad, not relevant', x: 'Plaintiff objects to this interrogatory as overly broad and unduly burdensome, including as to the time period covered, and as seeking information that is not relevant to the subject matter of this action. See R. 4:10-2(a). Without waiving that objection, plaintiff answers as follows:'},
+  {c: 'objection', t: 'Unrelated medical history', x: 'Plaintiff objects to this interrogatory to the extent that it seeks medical information unrelated to the injuries claimed in this action. Without waiving that objection, plaintiff answers as follows:'},
+  {c: 'objection', t: 'Privilege', x: 'Plaintiff objects to this interrogatory to the extent that it seeks information protected by the attorney-client privilege or the work product doctrine, and asserts that claim pursuant to R. 4:10-2(e) and R. 4:17-1(b)(3). Without waiving that objection, plaintiff answers as follows:'}
+];
+
+/* the firm's standard answers to supplemental questions the defense commonly serves.
+   k = words that suggest a match; tpl = the answer, using intake fields */
+const SUPP_DEFAULT = [
+  {t: 'Social media accounts', k: ['social media','facebook','instagram','tiktok','twitter','snapchat','linkedin','youtube'],
+   tpl: "Plaintiff objects to this interrogatory to the extent it seeks the content of, or access to, plaintiff's accounts, as overly broad and not relevant to the subject matter of this action. See R. 4:10-2(a). Without waiving that objection, plaintiff identifies the following accounts: {{client.socialMedia}}"},
+  {t: 'Phone use at the time', k: ['cell phone','cellular','mobile phone','telephone','texting','text message','electronic device'],
+   tpl: '{{#if client.phoneUse == yes}}{{client.phoneDetails}}{{else}}No. Plaintiff was not using a cellular telephone or any other electronic device at the time of the accident.{{/if}}'},
+  {t: 'Prior accidents and injuries', k: ['prior accident','previous accident','other accident','any accident','prior injur','previous injur','injured before','injured prior'],
+   tpl: '{{client.priorAccidents}}'},
+  {t: 'Prior claims and lawsuits', k: ['lawsuit','prior claim','other claim','any claim','workers','sued'],
+   tpl: '{{client.priorClaims}}'},
+  {t: 'Alcohol, drugs or medication', k: ['alcohol','alcoholic','drink','drug','medication','intoxicat','marijuana','cannabis'],
+   tpl: '{{#if client.substances == yes}}{{client.substanceDetails}}{{else}}No. Plaintiff did not consume any alcoholic beverage, drug or medication in the 24 hours before the accident.{{/if}}'},
+  {t: 'Primary care physician', k: ['primary care','family physician','family doctor','primary physician'],
+   tpl: '{{client.pcp}}'},
+  {t: 'Pharmacies', k: ['pharmacy','pharmacies','prescription'],
+   tpl: '{{client.pharmacy}}'},
+  {t: 'Health insurance and liens', k: ['health insurance','health insurer','medicare','medicaid','lien','collateral'],
+   tpl: "Health insurer: {{client.healthInsurer}}. {{#if client.medicare == yes}}Plaintiff is a Medicare beneficiary.{{else}}Plaintiff is not a Medicare beneficiary.{{/if}}{{#if calc.isAuto}} Plaintiff's accident-related medical expenses have been submitted to plaintiff's PIP carrier, {{client.insCarrier}}.{{/if}}"},
+  {t: "Driver's license and corrective lenses", k: ['license','licence','corrective lens','glasses','eyeglasses','contact lens','restriction'],
+   tpl: '{{client.licenseRestrictions}}'},
+  {t: 'Purpose and route of the trip', k: ['coming from','going to','destination','purpose of','origin','where you were going'],
+   tpl: '{{client.trip}}'},
+  {t: 'Employment history', k: ['employment history','employer','employers','employed','occupation'],
+   tpl: '{{client.employmentHistory}}'}
+];
+
+const PRELIM_DEFAULT = `Plaintiff {{client.fullName}} answers the Form A Uniform Interrogatories deemed served pursuant to R. 4:17-1(b)(2){{#if calc.isAuto}}, including Questions 25 through 37 applicable to automobile accident cases{{/if}}{{#if calc.hasSupp}}, and the supplemental interrogatories served by defendant{{/if}}.{{#if firm.desig == answer}} Where information is not within plaintiff's personal knowledge, its source is designated as required by R. 4:17-4(a).{{/if}} Discovery is continuing, and plaintiff reserves the right to amend these answers in accordance with R. 4:17-7.`;
+const CERT_DEFAULT = `I hereby certify that the foregoing answers to interrogatories are true. I am aware that if any of the foregoing statements made by me are willfully false, I am subject to punishment.
+
+I hereby certify that the copies of the reports annexed hereto provided by either treating physicians or proposed expert witnesses are exact copies of the entire report or reports provided by them; that the existence of other reports of said doctors or experts are unknown to me, and if such become later known or available, I shall serve them promptly on the propounding party.`;
+const FIRM_DEFAULT = {
+  name: '[FIRM NAME]', attorney: '[ATTORNEY NAME], Esq.', attorneyId: '[ATTORNEY ID NO.]',
+  address: '[STREET ADDRESS]\n[CITY], New Jersey [ZIP CODE]', phone: '[TELEPHONE]', email: '[EMAIL ADDRESS]',
+  paralegal: '', ssnMode: 'last4', desig: 'answer', prelim: PRELIM_DEFAULT, cert: CERT_DEFAULT
+};
+
+/* ======================================================================
+   MOTION PAPERS: starter clauses and packet definitions
+   ====================================================================== */
+const MCLAUSES = [
+  {id: 'sj', t: 'Summary judgment standard', cite: 'R. 4:46-2(c); Brill v. Guardian Life Ins. Co. of Am., 142 N.J. 520 (1995)', x: "Summary judgment may be granted only when the motion record shows no genuine issue as to any material fact challenged and the moving party is entitled to judgment as a matter of law. R. 4:46-2(c). The court must decide whether the competent evidential materials, viewed in the light most favorable to the non-moving party, would permit a rational factfinder to resolve the disputed issue in that party's favor. Brill v. Guardian Life Ins. Co. of Am., 142 N.J. 520, 540 (1995)."},
+  {id: 'verbal', t: 'Limitation-on-lawsuit threshold', cite: 'N.J.S.A. 39:6A-8(a); DiProspero v. Penn, 183 N.J. 477 (2005)', x: "Where the limitation-on-lawsuit option applies, plaintiff must prove an injury that falls within one of the categories listed in N.J.S.A. 39:6A-8(a), established by objective clinical evidence. Plaintiff is not also required to prove that the injury had a serious impact on plaintiff's life. DiProspero v. Penn, 183 N.J. 477 (2005)."},
+  {id: 'rsmf', t: 'Responding statement of material facts', cite: 'R. 4:46-2(b)', x: "Pursuant to R. 4:46-2(b), plaintiff has responded to each paragraph of the movant's statement of material facts, admitting or disputing it with citations to the motion record, and has set forth additional material facts that are in dispute."},
+  {id: 'cured', t: 'Discovery served after a R. 4:23-5 motion', cite: 'R. 4:23-5(a)(1)', x: 'The dismissal procedure of R. 4:23-5(a)(1) exists to secure discovery. Because plaintiff has now served the discovery in question, that purpose has been met and dismissal is unwarranted.'},
+  {id: 'goodfaith', t: 'Good-faith attempt to resolve', cite: 'R. 1:6-2(c)', x: 'In compliance with R. 1:6-2(c), counsel advised the opposing attorney by letter, after the default occurred, that continued non-compliance with the discovery obligation would result in a motion without further attempt to resolve the matter.'},
+  {id: 'ext', t: 'Extension of discovery', cite: 'R. 4:24-1(c)', x: 'Under R. 4:24-1(c), the discovery period may be extended on motion for good cause shown. Where an arbitration or trial date has been fixed, the movant must show exceptional circumstances.'}
+];
+const CLAUSE_MAP = Object.fromEntries(MCLAUSES.map(c => [c.id, c.x]));
+const CERT_END = `I certify that the foregoing statements made by me are true. I am aware that if any of the foregoing statements made by me are willfully false, I am subject to punishment.`;
+const SVC_DOC = {id: 'svc', title: 'Certification of service', heading: 'CERTIFICATION OF SERVICE', sig: 'cert', tpl:
+`{{firm.attorney}}, of full age, hereby certifies as follows:
+
+1. I am an attorney with {{firm.name}}, attorneys for plaintiff in this matter.
+
+2. On {{m.serviceDate|date}}, I caused the foregoing papers to be filed with the Clerk of the Superior Court, Law Division, {{caption.county}} County, through the Judiciary's eCourts system, which provides electronic service upon all counsel of record.
+
+${CERT_END}`};
+const firstDef = M => ((M.caption?.defendants || '').split('\n').map(s => s.trim()).filter(Boolean)[0] || '');
+const MOTIONS = [
+ {id: 'opp4235', title: 'Motion to dismiss for unanswered Form A', rule: 'R. 4:23-5(a)(1)', ours: false, oppDays: 8, oppRule: 'R. 1:6-3(a)',
+  summary: 'Defense moved to dismiss because the Form A answers were late. Once the answers are served, this opposition shows the motion is moot.',
+  fields: [
+    {k: 'movant', l: 'Moving defendant'}, {k: 'defCounsel', l: "Movant's counsel (firm)"}, {k: 'judge', l: 'Motion judge (last name)'},
+    {k: 'returnDate', l: 'Return date', t: 'date'},
+    {k: 'answersServed', l: 'Date Form A answers were served', t: 'date', h: 'Filled in from the Finish screen once recorded there'},
+    {k: 'hipaa', l: 'HIPAA authorizations served with them?', t: 'yn'},
+    {k: 'withdrawRequest', l: 'Date you asked defense to withdraw', t: 'date', h: 'Optional'},
+    {k: 'serviceDate', l: 'Date this opposition is filed', t: 'date'}
+  ],
+  defaults: M => ({movant: firstDef(M), answersServed: M.served?.date || '', hipaa: 'yes'}),
+  packet: [['Certification of counsel in opposition', 'Generated below'], ['Exhibit A: transmittal letter serving the Form A answers', 'From the file'], ['Certification of service', 'Generated below']],
+  docs: [
+   {id: 'cert', title: 'Certification in opposition', heading: 'CERTIFICATION OF COUNSEL IN OPPOSITION TO MOTION TO DISMISS', sig: 'cert', tpl:
+`{{firm.attorney}}, of full age, hereby certifies as follows:
+
+1. I am an attorney at law of the State of New Jersey and a member of {{firm.name}}, attorneys for plaintiff {{caption.plaintiff}}. I am familiar with the facts set forth herein, and I submit this certification in opposition to the motion of defendant {{m.movant}} to dismiss plaintiff's Complaint without prejudice pursuant to R. 4:23-5(a)(1), returnable {{m.returnDate|date}}.
+
+2. Defendant served an Answer to the Complaint on {{caption.answerServed|date}}. Pursuant to R. 4:17-1(b)(2), plaintiff was deemed served with Form A Uniform Interrogatories on that date.
+
+3. On {{m.answersServed|date}}, plaintiff served certified answers to Form A Uniform Interrogatories upon all counsel{{#if m.hipaa == yes}}, together with executed HIPAA authorizations for each health care provider identified in the answers, as required by R. 4:17-4{{/if}}. A true copy of the transmittal letter is annexed hereto as Exhibit A.{{#if m.withdrawRequest}}
+
+4. By letter dated {{m.withdrawRequest|date}}, I asked counsel for defendant to withdraw the motion in light of plaintiff's service of the answers. As of this date, the motion has not been withdrawn.{{/if}}
+
+{{calc.pn}}. {{clause.cured}} Plaintiff therefore respectfully submits that the motion is moot and should be denied.
+
+${CERT_END}`},
+   SVC_DOC
+  ]},
+ {id: 'mov4235', title: "Motion to suppress defendant's Answer", rule: 'R. 4:23-5(a)(1)', ours: true, fileDays: 16, oppDays: 8, fileRule: 'R. 1:6-3(a)',
+  summary: 'Defendant has not answered the Form C uniform interrogatories. Asks the court to suppress the Answer without prejudice.',
+  fields: [
+    {k: 'target', l: 'Delinquent defendant'}, {k: 'defCounsel', l: "Defendant's counsel (firm)"}, {k: 'judge', l: 'Motion judge (last name)'},
+    {k: 'returnDate', l: 'Return date', t: 'date'},
+    {k: 'defAnswerServed', l: "Date that defendant's Answer was served", t: 'date'},
+    {k: 'deficiencyDate', l: 'Date of your deficiency letter', t: 'date', h: 'Required before filing. R. 1:6-2(c).'},
+    {k: 'serviceDate', l: 'Date this motion is filed', t: 'date'}
+  ],
+  defaults: M => ({target: firstDef(M), defAnswerServed: M.caption?.answerServed || ''}),
+  packet: [['Notice of motion', 'Generated below'], ['Certification of counsel, with R. 1:6-2(c) and R. 4:23-5(a)(3) statements', 'Generated below'], ['Exhibit A: deficiency letter', 'From the file'], ['Proposed form of order', 'Generated below'], ['Certification of service', 'Generated below']],
+  docs: [
+   {id: 'notice', title: 'Notice of motion', heading: "NOTICE OF MOTION TO SUPPRESS DEFENDANT'S ANSWER WITHOUT PREJUDICE", sig: 'attorney', tpl:
+`| TO: {{m.defCounsel}}
+| Attorneys for Defendant {{m.target}}
+
+PLEASE TAKE NOTICE that on {{m.returnDate|date}}, at 9:00 a.m. or as soon thereafter as counsel may be heard, the undersigned, attorneys for plaintiff, shall move before the Honorable {{m.judge}}, J.S.C., Superior Court of New Jersey, Law Division, {{caption.county}} County, for an Order suppressing the Answer of defendant {{m.target}} without prejudice pursuant to R. 4:23-5(a)(1), for failure to serve answers to the applicable Form C Uniform Interrogatories.
+
+PLEASE TAKE FURTHER NOTICE that plaintiff shall rely upon the Certification of Counsel submitted herewith. A proposed form of Order is also submitted.
+
+PLEASE TAKE FURTHER NOTICE that plaintiff requests oral argument only if timely opposition is filed.`},
+   {id: 'cert', title: 'Certification', heading: 'CERTIFICATION OF COUNSEL IN SUPPORT OF MOTION', sig: 'cert', tpl:
+`{{firm.attorney}}, of full age, hereby certifies as follows:
+
+1. I am an attorney at law of the State of New Jersey and a member of {{firm.name}}, attorneys for plaintiff {{caption.plaintiff}}. I submit this certification in support of plaintiff's motion to suppress the Answer of defendant {{m.target}} without prejudice pursuant to R. 4:23-5(a)(1).
+
+2. Defendant {{m.target}} served an Answer to the Complaint on {{m.defAnswerServed|date}}. Pursuant to R. 4:17-1(b)(2), defendant was required to serve answers to the appropriate Form C Uniform Interrogatories within 60 days thereafter, that is, by {{calc.formCDue|date}}.
+
+3. On {{m.deficiencyDate|date}}, after the answers became overdue, I advised counsel for defendant by letter that continued non-compliance with this discovery obligation would result in this motion. A true copy of that letter is annexed hereto as Exhibit A. This statement is made in compliance with R. 1:6-2(c).
+
+4. Plaintiff is not in default of any discovery obligation owed to defendant {{m.target}}. Plaintiff served answers to Form A Uniform Interrogatories on {{served.date|date}}. This statement is made in accordance with R. 4:23-5(a)(3).
+
+5. As of the date of this certification, defendant has not served answers to the Form C Uniform Interrogatories and has not moved for an extension of time or a protective order.
+
+6. Plaintiff therefore respectfully requests that the Court enter the proposed form of Order submitted herewith.
+
+${CERT_END}`},
+   {id: 'order', title: 'Proposed order', heading: 'ORDER', sig: 'order', tpl:
+`THIS MATTER having been opened to the Court by {{firm.name}}, attorneys for plaintiff {{caption.plaintiff}}, on notice to {{m.defCounsel}}, attorneys for defendant {{m.target}}, and the Court having considered the papers submitted, and for good cause shown;
+
+IT IS on this ______ day of ____________________, 20____, ORDERED that the Answer of defendant {{m.target}} is hereby SUPPRESSED WITHOUT PREJUDICE pursuant to R. 4:23-5(a)(1); and
+
+IT IS FURTHER ORDERED that a copy of this Order shall be served upon all counsel of record within ______ days of the date hereof.`},
+   SVC_DOC
+  ]},
+ {id: 'oppSJ', title: 'Motion for summary judgment', rule: 'R. 4:46-2', ours: false, oppDays: 10, oppRule: 'R. 4:46-1',
+  summary: 'Assembles the brief outline and the responding statement of material facts. The argument itself is marked for the attorney.',
+  fields: [
+    {k: 'movant', l: 'Moving defendant'}, {k: 'judge', l: 'Motion judge (last name)'}, {k: 'returnDate', l: 'Return date', t: 'date'},
+    {k: 'ground', l: 'Ground of the motion', t: 'select', o: [['threshold','Verbal threshold (permanency)'],['liability','Liability'],['other','Other']]},
+    {k: 'paraCount', l: "Paragraphs in movant's statement of facts", t: 'number'},
+    {k: 'serviceDate', l: 'Date the opposition is filed', t: 'date'}
+  ],
+  defaults: M => ({movant: firstDef(M), paraCount: '6', ground: M.attorney?.threshold === 'limitation' ? 'threshold' : ''}),
+  packet: [['Brief in opposition', 'Outline generated below'], ['Responding statement of material facts, R. 4:46-2(b)', 'Generated below'], ['Certification of counsel attaching the record', 'From the file'], ['Certification of service', 'Generated below']],
+  docs: [
+   {id: 'brief', title: 'Brief outline', heading: "BRIEF ON BEHALF OF PLAINTIFF IN OPPOSITION TO DEFENDANT'S MOTION FOR SUMMARY JUDGMENT", sig: 'attorney', tpl:
+`## PRELIMINARY STATEMENT
+
+[ATTORNEY: In two or three paragraphs, state why genuine disputes of material fact preclude summary judgment.]
+
+## COUNTER-STATEMENT OF FACTS
+
+On {{police.date|date}}, plaintiff {{caption.plaintiff}} was involved in {{calc.incidentNoun}} at or near {{police.location}}, {{police.municipality}}, New Jersey.{{#if calc.isAuto}} Plaintiff was {{client.role}} a {{police.plaintiffVehicle}}. {{police.contactPoints}}{{/if}} The {{police.agency}} investigated{{#if police.defendantSummons}} and issued a summons to defendant for {{police.defendantSummons}}{{/if}}.
+
+Plaintiff's treating providers diagnosed the following injuries: {{medical.injuries}}
+
+{{#if medical.permanent}}Plaintiff's treating physician has identified the following permanent injury: {{medical.permanent}}{{/if}}
+
+[ATTORNEY: Add a citation to the motion record for each fact above.]
+
+## LEGAL ARGUMENT
+
+## POINT I
+## THE SUMMARY JUDGMENT STANDARD
+
+{{clause.sj}}
+
+{{#if m.ground == threshold}}## POINT II
+## PLAINTIFF HAS SUSTAINED A PERMANENT INJURY WITHIN THE MEANING OF N.J.S.A. 39:6A-8(a)
+
+{{clause.verbal}}
+
+[ATTORNEY: Apply the objective medical evidence in the record (imaging, diagnostic testing, the physician certification of permanency) to the statutory categories.]{{else}}{{#if m.ground == liability}}## POINT II
+## GENUINE DISPUTES OF MATERIAL FACT EXIST AS TO LIABILITY
+
+[ATTORNEY: Identify each disputed fact and the record evidence that creates the dispute.]{{else}}## POINT II
+
+[ATTORNEY: Argument.]{{/if}}{{/if}}
+
+## CONCLUSION
+
+For the foregoing reasons, plaintiff respectfully requests that the Court deny defendant's motion for summary judgment.`},
+   {id: 'rsmf', title: 'Responding statement', heading: "PLAINTIFF'S RESPONDING STATEMENT OF MATERIAL FACTS PURSUANT TO R. 4:46-2(b)", sig: 'attorney', tpl:
+`Pursuant to R. 4:46-2(b), plaintiff {{caption.plaintiff}} responds to the Statement of Material Facts submitted by defendant {{m.movant}} as follows:
+
+{{#each calc.rsmf}}{{.}}. [ATTORNEY: Admitted, or denied with a citation to the motion record.]
+
+{{/each}}## PLAINTIFF'S SUPPLEMENTAL STATEMENT OF MATERIAL FACTS
+
+1. On {{police.date|date}}, plaintiff was involved in {{calc.incidentNoun}} at or near {{police.location}}, {{police.municipality}}, New Jersey. [ATTORNEY: Cite the police report exhibit.]
+
+2. Plaintiff was diagnosed with the following injuries: {{medical.injuries}} [ATTORNEY: Cite the medical records exhibits.]
+
+3. {{#if medical.permanent}}Plaintiff's treating physician has identified the following permanent injury: {{medical.permanent}}{{else}}[ATTORNEY: State the additional material fact.]{{/if}} [ATTORNEY: Cite the physician's report or certification.]`},
+   SVC_DOC
+  ]},
+ {id: 'movExt', title: 'Motion to extend discovery', rule: 'R. 4:24-1(c)', ours: true, fileDays: 16, oppDays: 8, fileRule: 'R. 1:6-3(a)',
+  summary: 'Builds the notice, certification and order from the discovery history you describe.',
+  fields: [
+    {k: 'judge', l: 'Motion judge (last name)'}, {k: 'returnDate', l: 'Return date', t: 'date'},
+    {k: 'discoveryEnd', l: 'Current discovery end date', t: 'date'}, {k: 'days', l: 'Days of extension', t: 'number'},
+    {k: 'prior', l: 'Discovery previously extended?', t: 'yn'}, {k: 'arbitration', l: 'Arbitration or trial date already set?', t: 'yn'},
+    {k: 'completed', l: 'Discovery completed', t: 'area', w: 'full'}, {k: 'remaining', l: 'Discovery remaining', t: 'area', w: 'full'},
+    {k: 'reasons', l: 'Why it is not complete', t: 'area', w: 'full'}, {k: 'serviceDate', l: 'Date this motion is filed', t: 'date'}
+  ],
+  defaults: M => ({discoveryEnd: M.caption?.discoveryEnd || '', days: '60'}),
+  packet: [['Notice of motion', 'Generated below'], ['Certification of counsel', 'Generated below'], ['Proposed form of order', 'Generated below'], ['Certification of service', 'Generated below']],
+  docs: [
+   {id: 'notice', title: 'Notice of motion', heading: 'NOTICE OF MOTION TO EXTEND DISCOVERY', sig: 'attorney', tpl:
+`| TO: All counsel of record
+
+PLEASE TAKE NOTICE that on {{m.returnDate|date}}, at 9:00 a.m. or as soon thereafter as counsel may be heard, the undersigned, attorneys for plaintiff, shall move before the Honorable {{m.judge}}, J.S.C., Superior Court of New Jersey, Law Division, {{caption.county}} County, for an Order pursuant to R. 4:24-1(c) extending the time for discovery by {{m.days}} days, from {{m.discoveryEnd|date}} to {{calc.newEnd|date}}.
+
+PLEASE TAKE FURTHER NOTICE that plaintiff shall rely upon the Certification of Counsel submitted herewith. A proposed form of Order is also submitted.
+
+PLEASE TAKE FURTHER NOTICE that plaintiff requests oral argument only if timely opposition is filed.`},
+   {id: 'cert', title: 'Certification', heading: 'CERTIFICATION OF COUNSEL IN SUPPORT OF MOTION TO EXTEND DISCOVERY', sig: 'cert', tpl:
+`{{firm.attorney}}, of full age, hereby certifies as follows:
+
+1. I am an attorney at law of the State of New Jersey and a member of {{firm.name}}, attorneys for plaintiff {{caption.plaintiff}}. I submit this certification in support of plaintiff's motion to extend discovery pursuant to R. 4:24-1(c).
+
+2. The current discovery end date is {{m.discoveryEnd|date}}.{{#if m.prior == yes}} Discovery has previously been extended.{{else}} Discovery has not previously been extended.{{/if}}
+
+3. The following discovery has been completed: {{m.completed}}
+
+4. The following discovery remains to be completed: {{m.remaining}}
+
+5. Discovery has not been completed within the time allowed for the following reasons: {{m.reasons}}
+
+6. {{#if m.arbitration == yes}}An arbitration or trial date has been fixed. Plaintiff submits that the circumstances described above are exceptional and warrant the extension under R. 4:24-1(c).{{else}}No arbitration or trial date has been fixed. Plaintiff submits that good cause exists for the extension under R. 4:24-1(c).{{/if}}
+
+7. Plaintiff respectfully requests that discovery be extended by {{m.days}} days, to {{calc.newEnd|date}}.
+
+${CERT_END}`},
+   {id: 'order', title: 'Proposed order', heading: 'ORDER EXTENDING DISCOVERY', sig: 'order', tpl:
+`THIS MATTER having been opened to the Court by {{firm.name}}, attorneys for plaintiff {{caption.plaintiff}}, on notice to all counsel of record, and the Court having considered the papers submitted, and for good cause shown;
+
+IT IS on this ______ day of ____________________, 20____, ORDERED that the time for discovery in this matter is extended to {{calc.newEnd|date}}; and
+
+IT IS FURTHER ORDERED that a copy of this Order shall be served upon all counsel of record within ______ days of the date hereof.`},
+   SVC_DOC
+  ]}
+];
+
+/* ======================================================================
+   TEMPLATE ENGINE
+   {{path}}  {{path|date}}  {{#if path}}..{{else}}..{{/if}}
+   {{#if path == value}}  {{#each list}}{{.field}} {{@a}} {{/each}}  {{need path}}
+   A blank value prints [MISSING: label] and is listed for staff to fill.
+   ====================================================================== */
+const TPL_CACHE = new Map();
+function parseTpl(src){
+  if(TPL_CACHE.has(src)) return TPL_CACHE.get(src);
+  const re = /\{\{\s*(#each|#if|\/each|\/if|else|need)?\s*([^}]*?)\s*\}\}/g;
+  const root = {kids: []}; const stack = [root]; let last = 0, m;
+  const cur = () => { const n = stack[stack.length - 1]; return n.inElse ? n.alt : n.kids; };
+  while((m = re.exec(src))){
+    if(m.index > last) cur().push({t: 'text', v: src.slice(last, m.index)});
+    const kw = m[1], arg = m[2];
+    if(kw === '#each' || kw === '#if'){ const node = {t: kw.slice(1), arg, kids: [], alt: [], inElse: false}; cur().push(node); stack.push(node); }
+    else if(kw === 'else'){ if(stack.length > 1) stack[stack.length - 1].inElse = true; }
+    else if(kw === '/each' || kw === '/if'){ if(stack.length > 1) stack.pop(); }
+    else if(kw === 'need') cur().push({t: 'need', v: arg});
+    else cur().push({t: 'var', v: arg});
+    last = re.lastIndex;
+  }
+  if(last < src.length) cur().push({t: 'text', v: src.slice(last)});
+  TPL_CACHE.set(src, root.kids);
+  if(TPL_CACHE.size > 400) TPL_CACHE.clear();
+  return root.kids;
+}
+const FILTERS = {
+  date: v => fDate(String(v)), time: v => fTime(String(v)), money: v => fMoney(v),
+  lower: v => String(v).toLowerCase(), upper: v => String(v).toUpperCase()
+};
+function resolve(path, sc){
+  if(path === '.') return {v: sc.item, p: sc.itemPath};
+  if(path === '@n') return {v: sc.idx + 1};
+  if(path === '@a') return {v: String.fromCharCode(97 + (sc.idx % 26))};
+  if(path.startsWith('.')){ const k = path.slice(1); return {v: sc.item != null ? getPath(sc.item, k) : undefined, p: `${sc.itemPath}.${k}`}; }
+  return {v: getPath(sc.root, path), p: path};
+}
+function runTpl(nodes, sc, missing){
+  let s = '';
+  const miss = p => {
+    const r = missRecord(p || '');
+    if(!missing.some(x => x.label === r.label)) missing.push(r);
+    return `[MISSING: ${r.label}]`;
+  };
+  for(const n of nodes){
+    if(n.t === 'text') s += n.v;
+    else if(n.t === 'var'){
+      const [path, ...filters] = n.v.split('|').map(x => x.trim());
+      const r = resolve(path, sc);
+      if(isEmpty(r.v)) s += miss(r.p);
+      else s += filters.reduce((v, f) => FILTERS[f] ? FILTERS[f](v) : v, r.v);
+    }
+    else if(n.t === 'need') s += miss(resolve(n.v.trim(), sc).p);
+    else if(n.t === 'if'){
+      const cmp = /^(\S+)\s*(==|!=)\s*(\S+)$/.exec(n.arg.trim());
+      if(cmp){
+        const r = resolve(cmp[1], sc);
+        if(isEmpty(r.v)){ s += miss(r.p); continue; }
+        const eq = String(r.v) === cmp[3];
+        s += runTpl((cmp[2] === '==' ? eq : !eq) ? n.kids : n.alt, sc, missing);
+      } else {
+        const r = resolve(n.arg.trim(), sc);
+        const truthy = !isEmpty(r.v) && r.v !== false && r.v !== 'no';
+        s += runTpl(truthy ? n.kids : n.alt, sc, missing);
+      }
+    }
+    else if(n.t === 'each'){
+      const r = resolve(n.arg.trim(), sc);
+      (Array.isArray(r.v) ? r.v : []).forEach((it, i) => {
+        s += runTpl(n.kids, {root: sc.root, item: it, idx: i, itemPath: (it && it.__path) || `${r.p}.${i}`}, missing);
+      });
+    }
+  }
+  return s;
+}
+const tidy = s => s.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').replace(/ {2,}/g, ' ').trim();
+function renderTpl(src, ctx){
+  const missing = [];
+  let text = '';
+  try{ text = tidy(runTpl(parseTpl(src || ''), {root: ctx, item: null, idx: -1, itemPath: ''}, missing)); }
+  catch(e){ text = '[TEMPLATE ERROR: check this template in the Forms library]'; }
+  return {text, missing};
+}
+
+/* ======================================================================
+   STATE AND PERSISTENCE
+   ====================================================================== */
+let LIB = null;
+function lib(){
+  if(LIB) return LIB;
+  const o = store.get('lib') || {};
+  LIB = {
+    qs: FORM_A.map(q => ({...q, ...(o.qs?.[q.n] || {}), custom: !!o.qs?.[q.n]})),
+    clauses: o.clauses || CLAUSES_DEFAULT,
+    supp: o.supp || SUPP_DEFAULT
+  };
+  return LIB;
+}
+function libSave(mut){ const o = store.get('lib') || {}; mut(o); store.set('lib', o); LIB = null; }
+function firm(){ return {...FIRM_DEFAULT, ...(store.get('firm') || {})}; }
+
+function blankMatter(){
+  return {id: uid(), caption: {caseType: 'auto'}, police: {witnesses: []}, medical: {providers: [], tests: [], priors: []},
+    client: {witnesses: [], others: [], photos: []}, attorney: {experts: []}, answers: {}, supp: {items: []}, served: {}, checklist: {}, motions: {}};
+}
+/* The fill-in-the-blank example. Every fact is a bracketed blank such as [PLAINTIFF NAME], so the
+   drafts show the shape of each answer without inventing anyone. Dates and dollar amounts are left
+   empty because those boxes only accept real values; the drafts mark them as missing.
+   Yes or no choices are set only to show the fuller form of each answer. */
+function exampleMatter(){
+  return {
+    id: uid(), example: true,
+    caption: {plaintiff: '[PLAINTIFF NAME]', defendants: '[DEFENDANT 1]\n[DEFENDANT 2]', county: '', docket: '[DOCKET NO.]', caseType: 'auto', answerServed: '', discoveryEnd: ''},
+    police: {reportNo: '[REPORT NO.]', agency: '[POLICE DEPARTMENT]', officer: '[OFFICER NAME AND BADGE NO.]', date: '', time: '',
+      location: '[ROADWAY AND NEAREST CROSS STREET]', municipality: '[MUNICIPALITY]', weather: '', light: '', surface: '',
+      plaintiffVehicle: '[YEAR, MAKE AND MODEL]', defendantVehicle: '[YEAR, MAKE AND MODEL]', plaintiffRoad: '[ROADWAY]', plaintiffDirection: '', intersection: '',
+      trafficControls: '[TRAFFIC SIGNALS OR SIGNS, AND THEIR STATE AT THE TIME]',
+      pointOfImpact: '[POINT OF IMPACT]',
+      contactPoints: '[POINTS OF CONTACT BETWEEN THE VEHICLES]',
+      restPositions: '[FINAL REST POSITIONS OF THE VEHICLES]',
+      defendantSummons: '[SUMMONSES ISSUED TO DEFENDANT, WITH STATUTE]', plaintiffCharged: 'no',
+      witnesses: [{name: '[WITNESS NAME]', address: '[WITNESS ADDRESS]', relationship: '[RELATIONSHIP TO ANY PARTY, OR NONE]'}]},
+    medical: {
+      injuries: '[DIAGNOSES FROM THE MEDICAL RECORDS]',
+      permanent: '[INJURIES CLAIMED TO BE PERMANENT]',
+      providers: [
+        {name: '[HOSPITAL NAME]', address: '[HOSPITAL ADDRESS]', kind: 'Emergency department', first: '', ongoing: 'no', last: '', treatment: '[TREATMENT RECEIVED]', billed: '', paid: '', payer: '[WHO PAID, SUCH AS PIP]', report: 'no'},
+        {name: '[TREATING PROVIDER NAME]', address: '[PROVIDER ADDRESS]', kind: 'Orthopedics', first: '', ongoing: 'yes', frequency: '[HOW OFTEN]', treatment: '[TREATMENT RECEIVED]', billed: '', paid: '', payer: '[WHO PAID, SUCH AS PIP]', report: 'yes'}
+      ],
+      tests: [
+        {type: '[TEST, SUCH AS MRI OF THE CERVICAL SPINE]', facility: '[FACILITY NAME]', address: '[FACILITY ADDRESS]', date: '', result: '[RESULT AS STATED IN THE REPORT]'}
+      ],
+      priors: []},
+    client: {fullName: '[PLAINTIFF NAME]', address: '[HOME ADDRESS]', dob: '', ssnLast4: '', medicare: 'no', role: 'the operator of',
+      version: '[HOW THE ACCIDENT HAPPENED, WRITTEN IN THE THIRD PERSON]',
+      presentComplaints: '[SYMPTOMS THE CLIENT HAS TODAY]',
+      employed: 'yes', employer: '[EMPLOYER NAME]', employerAddress: '[EMPLOYER ADDRESS]', position: '[JOB TITLE AND DUTIES]',
+      avgWeekly: '', timeLost: '[DATES OUT OF WORK]', wagesLost: '', returned: 'yes', presentEmployer: '[PRESENT EMPLOYER]',
+      presentEmployerAddress: '[PRESENT EMPLOYER ADDRESS]', presentPosition: '[PRESENT POSITION]', presentWages: '',
+      otherIncomeLoss: '', otherExpenses: '[OTHER EXPENSES, SUCH AS CO-PAYMENTS AND MILEAGE]',
+      witnesses: [], others: [{name: '[NAME]', address: '[ADDRESS]', knowledge: '[WHAT THIS PERSON KNOWS]'}],
+      photos: [{count: '[NUMBER]', shows: '[WHAT THE PHOTOGRAPHS SHOW]', date: '', by: '[WHO TOOK THEM]', possession: '[WHO HAS THEM NOW]'}],
+      admissionsYN: 'yes', admissions: '[STATEMENT, WHO MADE IT, WHEN AND WHERE, WHO WAS PRESENT, AND WHETHER ORAL OR WRITTEN]',
+      commsYN: 'no', convicted: 'no', sawBefore: 'no', speedImpact: '[SPEED AT IMPACT]', otherSpeedImpact: '[OTHER VEHICLE SPEED AT IMPACT]',
+      speedsDistances: '[SPEEDS AND DISTANCES, OR WHY THEY CANNOT BE ESTIMATED]',
+      malfunction: 'no', pip: 'yes', insCarrier: '[AUTO INSURANCE CARRIER]', insAddress: '[CARRIER ADDRESS]', policyNo: '[POLICY NO.]', namedInsured: '[NAMED INSURED]', propertyDamage: 'no',
+      trip: '[WHERE THE CLIENT WAS COMING FROM AND GOING TO]',
+      phoneUse: 'no', substances: 'no',
+      licenseRestrictions: '[LICENSE RESTRICTIONS, OR NONE]',
+      priorAccidents: '[PRIOR ACCIDENTS OR INJURIES IN THE LAST TEN YEARS, OR NONE]',
+      priorClaims: '[PRIOR CLAIMS OR LAWSUITS, OR NONE]',
+      pcp: '[PRIMARY CARE PHYSICIAN, ADDRESS, AND YEARS]',
+      pharmacy: '[PHARMACY AND ADDRESS]',
+      healthInsurer: '[HEALTH INSURER]',
+      socialMedia: '[PLATFORM AND USER NAME FOR EACH ACCOUNT]',
+      employmentHistory: '[EMPLOYERS FOR THE LAST TEN YEARS, WITH DATES]'},
+    attorney: {aggravation: 'no', threshold: 'limitation', statutes: '', statementsYN: 'no', statements: '', documentsExtra: '', experts: []},
+    answers: {},
+    supp: {items: [
+      {q: 'State whether you maintain or have maintained any social media accounts, including Facebook, Instagram, TikTok, or X, and for each account state the platform and user name.', a: ''},
+      {q: 'State whether you were using a cellular telephone or any other electronic device at the time of the accident, and if so, describe the use.', a: ''},
+      {q: 'Identify any prior accident or injury you sustained in the ten years before the accident, and for each state the date, the nature of the injury, and any treatment received.', a: ''},
+      {q: 'Identify your primary care physician for the past ten years and each pharmacy you have used during that period.', a: ''},
+      {q: 'State whether you consumed any alcoholic beverage, drug, or medication in the 24 hours before the accident.', a: ''},
+      {q: 'Identify (a) each employer you have had in the past ten years, (b) your dates of employment with each, and (c) your reason for leaving each position.', a: ''}
+    ]},
+    served: {}, checklist: {},
+    motions: {opp4235: {movant: '[MOVING DEFENDANT]', defCounsel: '[DEFENSE FIRM]', judge: '[JUDGE]', hipaa: 'yes'}}
+  };
+}
+
+let cur = null;           // the open matter
+let A = [];               // computed Form A answers
+let SUPP = [];            // computed supplemental answers
+let CTX = null;           // template context
+let NEED = new Map();     // field path -> where it is needed
+const state = {view: store.get('view') || 'review', q: 1, editing: false, editBase: null, filter: 'all', motion: 'opp4235', motionDoc: 0, returnTo: null, qMode: 'blank', sxDirty: new Set()};
+
+let saveTimer = null;
+function saveMatter(now){
+  clearTimeout(saveTimer);
+  const doit = () => {
+    cur.updated = new Date().toISOString();
+    store.set('m.' + cur.id, cur);
+    store.set('current', cur.id);
+    const idx = (store.get('index') || []).filter(x => x.id !== cur.id);
+    idx.unshift({id: cur.id, title: matterTitle(cur), docket: cur.caption?.docket || '', updated: cur.updated});
+    store.set('index', idx);
+  };
+  if(now) doit(); else saveTimer = setTimeout(doit, 300);
+}
+function matterTitle(M){
+  const cap = M.caption || {};
+  const defs = (cap.defendants || '').split('\n').map(s => s.trim()).filter(Boolean);
+  if(!cap.plaintiff) return 'Untitled matter';
+  return `${cap.plaintiff} v. ${defs[0] || 'Defendant'}${defs.length > 1 ? ', et al.' : ''}`;
+}
+
+/* ======================================================================
+   COMPUTED VALUES
+   ====================================================================== */
+function computeCalc(M, F){
+  const c = {};
+  const isAuto = M.caption?.caseType === 'auto';
+  c.isAuto = isAuto;
+  c.hasSupp = (M.supp?.items || []).length > 0;
+  c.incidentNoun = isAuto ? 'a motor vehicle collision' : 'an incident';
+  const last4 = String(M.client?.ssnLast4 || '').replace(/\D/g, '');
+  c.ssnText = F.ssnMode === 'separate' ? 'Provided to counsel for defendants under separate confidential cover.' : (last4.length === 4 ? `XXX-XX-${last4}` : '');
+  const provs = (M.medical?.providers || []).map((p, i) => {
+    const b = num(p.billed), pd_ = num(p.paid);
+    return {...p, __path: `medical.providers.${i}`, owed: b == null ? '' : b - (pd_ || 0),
+      paidText: pd_ == null ? 'none recorded to date' : fMoney(pd_) + (p.payer ? ` by ${p.payer}` : '')};
+  }).sort((a, b) => (a.first || '9999').localeCompare(b.first || '9999'));
+  c.providers = provs;
+  c.admissions = provs.filter(p => p.kind === 'Hospital admission');
+  c.er = provs.filter(p => p.kind === 'Emergency department');
+  c.current = provs.filter(p => p.ongoing === 'yes');
+  const billed = provs.map(p => num(p.billed)).filter(v => v != null);
+  c.totalBilled = billed.length ? billed.reduce((a, b) => a + b, 0) : '';
+  const seen = new Set(); c.eyewitnesses = [];
+  const addW = (arr, base) => (arr || []).forEach((w, i) => {
+    const key = (w.name || '').trim().toLowerCase();
+    if(key && seen.has(key)) return; if(key) seen.add(key);
+    c.eyewitnesses.push({...w, __path: `${base}.${i}`, relationship: w.relationship || 'None', interest: w.interest || 'None known'});
+  });
+  addW(M.police?.witnesses, 'police.witnesses'); addW(M.client?.witnesses, 'client.witnesses');
+  const docs = [];
+  if(M.police?.reportNo) docs.push(`${M.police.agency || 'Police'} Crash Investigation Report No. ${M.police.reportNo}`);
+  if(provs.length) docs.push('Records, reports and bills of the health care providers identified in the answer to Interrogatory No. 7');
+  if((M.medical?.tests || []).length) docs.push('Diagnostic test results identified in the answer to Interrogatory No. 6');
+  if((M.client?.photos || []).length) docs.push('Photographs identified in the answer to Interrogatory No. 18');
+  if(M.client?.employed === 'yes') docs.push('Employment and wage records (to be supplied)');
+  if(isAuto && M.client?.pip === 'yes'){ docs.push('Automobile insurance declaration sheet'); docs.push('PIP payout ledger (to be supplied upon receipt)'); }
+  if(M.client?.medicare === 'yes') docs.push("Copy of plaintiff's Medicare card");
+  (M.attorney?.documentsExtra || '').split('\n').map(s => s.trim()).filter(Boolean).forEach(s => docs.push(s));
+  c.documents = docs;
+  const att = [];
+  if(M.client?.medicare === 'yes') att.push(['medicare', 'Copy of Medicare card', 'Question 1']);
+  if((M.medical?.tests || []).length) att.push(['tests', 'Diagnostic test results', 'Question 6']);
+  if(provs.some(p => p.report === 'yes')) att.push(['reports', 'Written reports of treating providers who may testify', 'Question 7']);
+  if(docs.length) att.push(['docs', 'Documents identified', 'Question 15']);
+  if((M.client?.photos || []).length) att.push(['photos', 'Copies of photographs', 'Question 18']);
+  if(M.attorney?.statementsYN === 'yes') att.push(['stmts', 'Written non-party statements', 'Question 21']);
+  if((M.attorney?.experts || []).length) att.push(['experts', 'Expert resumes and reports', 'Question 23']);
+  if(isAuto && M.client?.malfunction === 'yes') att.push(['repair', 'Repair bills', 'Question 28']);
+  if(isAuto && M.client?.pip === 'yes') att.push(['dec', 'Insurance declaration sheet', 'Question 37']);
+  att.push(['cert', 'Certification signed and dated by plaintiff', 'Certification']);
+  c.attachments = att;
+  c.hipaa = provs.filter(p => p.name);
+  const as = M.caption?.answerServed;
+  if(as){ c.dueRaw = addDays(as, 30); c.due = rollFwd(c.dueRaw); c.thresholdDue = rollFwd(addDays(as, 60)); }
+  if(M.caption?.discoveryEnd) c.amendBy = addDays(M.caption.discoveryEnd, -20);
+  return c;
+}
+function activeQs(M){ const auto = M.caption?.caseType === 'auto'; return lib().qs.filter(q => auto || q.n <= 24); }
+function computeSupp(){
+  const L = lib();
+  return (cur.supp?.items || []).map((it, i) => {
+    const q = it.q || '', a = it.a || '';
+    const markers = (a.match(/\[MISSING: [^\]]+\]/g) || []).length;
+    const missing = (it.miss || []).filter(mi => a.includes(`[MISSING: ${mi.label}]`));
+    const lq = q.toLowerCase();
+    const sugg = L.supp.map((e, k) => ({k, t: e.t, score: (e.k || []).filter(w => w && lq.includes(String(w).toLowerCase())).length}))
+      .filter(x => x.score > 0).sort((x, y) => y.score - x.score).slice(0, 3);
+    const empty = !a.trim();
+    const nMiss = Math.max(missing.length, markers);
+    const paraOK = !!it.paraOK && it.paraText === a;
+    const attyOK = !!it.reviewed && it.reviewedText === a;
+    const signedBefore = !!(it.paraOK || it.reviewed);
+    const status = empty ? 'blank' : nMiss ? 'missing' : attyOK ? 'approved' : paraOK ? 'checked' : signedBefore ? 'recheck' : 'draft';
+    return {i, n: i + 1, q, a, missing, nMiss: nMiss + (empty ? 1 : 0), over: i >= 10,
+      subparts: (q.match(/\(\s*(?:[a-h]|i{1,3}|iv|v)\s*\)/gi) || []).length >= 2, sugg, status, paraOK, attyOK, it};
+  });
+}
+function compute(){
+  const F = firm();
+  CTX = {...cur, firm: F, clause: CLAUSE_MAP};
+  CTX.calc = computeCalc(cur, F);
+  A = activeQs(cur).map(q => {
+    const auto = renderTpl(q.tpl, CTX);
+    const saved = (cur.answers || {})[q.n] || {};
+    const edited = typeof saved.text === 'string';
+    const final = edited ? saved.text : auto.text;
+    const missing = edited ? auto.missing.filter(mi => final.includes(`[MISSING: ${mi.label}]`)) : auto.missing.slice();
+    let desig = '';
+    if(F.desig === 'answer'){
+      const parts = q.src.filter(s => DESIG[s]).map(s => renderTpl(DESIG[s], CTX));
+      desig = parts.map(p => p.text).join(' ');
+      parts.forEach(p => p.missing.forEach(mi => { if(!missing.some(x => x.label === mi.label)) missing.push(mi); }));
+    }
+    const markers = (final.match(/\[MISSING: [^\]]+\]/g) || []).length;
+    const nMiss = Math.max(missing.length, markers);
+    const paraOK = !!saved.paraOK && saved.paraText === final;
+    const attyOK = !!saved.reviewed && saved.reviewedText === final;
+    const signedBefore = !!(saved.paraOK || saved.reviewed);  // signed off once, wording changed since
+    const status = nMiss ? 'missing' : attyOK ? 'approved' : paraOK ? 'checked' : signedBefore ? 'recheck' : edited ? 'edited' : 'draft';
+    const stale = edited && saved.base != null && saved.base !== auto.text;
+    return {q, auto, saved, edited, final, missing, nMiss, desig, paraOK, attyOK, status, stale};
+  });
+  SUPP = computeSupp();
+  NEED = new Map();
+  const add = (path, tag) => { const arr = NEED.get(path) || []; if(!arr.includes(tag)) arr.push(tag); NEED.set(path, arr); };
+  A.forEach(a => a.missing.forEach(mi => add(mi.path, `No. ${a.q.n}`)));
+  SUPP.forEach(s => s.missing.forEach(mi => add(mi.path, `Supplemental No. ${s.n}`)));
+}
+
+/* fill [MISSING] markers in supplemental answers once the field has been filled in */
+function fillSuppMarkers(){
+  let changed = false;
+  (cur.supp?.items || []).forEach(it => {
+    (it.miss || []).forEach(mi => {
+      const marker = `[MISSING: ${mi.label}]`;
+      if(!it.a || !it.a.includes(marker)) return;
+      const meta = FIELD_INDEX[norm(mi.path)];
+      const t = meta ? meta.t : 'text';
+      if(t === 'yn' || t === 'list' || t === 'select') return;
+      const v = getPath(cur, mi.path);
+      if(isEmpty(v)) return;
+      it.a = it.a.split(marker).join(t === 'date' ? fDate(v) : t === 'money' ? fMoney(v) : String(v));
+      changed = true;
+    });
+  });
+  if(changed) saveMatter();
+  return changed;
+}
+
+/* ======================================================================
+   SMALL RENDER HELPERS
+   ====================================================================== */
+const SRC = {police: 'Police report', medical: 'Medical records', client: 'Client', attorney: 'Attorney', file: 'Case file'};
+const STEP_NAME = {matter: 'Matter', police: 'Police report', medical: 'Medical records', client: 'Client', attorney: 'Attorney decisions', finish: 'Finish and serve', motions: 'Motion papers'};
+const STATUS = {missing: 'Needs information', blank: 'Not answered', draft: 'Draft', edited: 'Edited', recheck: 'Needs recheck', checked: 'Checked by paralegal', approved: 'Approved by attorney'};
+const STATUS_SHORT = {missing: 'Needs info', blank: 'Not answered', draft: 'Draft', edited: 'Edited', recheck: 'Recheck', checked: 'Checked', approved: 'Approved'};
+const stHTML = (s, short) => `<span class="st st-${s}" title="${STATUS[s]}">${short ? STATUS_SHORT[s] : STATUS[s]}</span>`;
+const hl = t => esc(t).replace(/\[MISSING: ([^\]]+)\]/g, '<mark class="miss">MISSING: $1</mark>').replace(/\[ATTORNEY: ([^\]]+)\]/g, '<mark class="atty">Attorney: $1</mark>')
+  .replace(/\[([A-Z0-9][A-Z0-9 ,.\/&()#-]*)\]/g, '<mark class="blank">[$1]</mark>');
+const hlDoc = t => esc(t).replace(/\[MISSING: ([^\]]+)\]/g, '<span style="background:#D0D0D0;font-weight:bold">[MISSING: $1]</span>').replace(/\[ATTORNEY: ([^\]]+)\]/g, '<span style="background:#EBEBEB;font-style:italic">[ATTORNEY: $1]</span>')
+  .replace(/\[([A-Z0-9][A-Z0-9 ,.\/&()#-]*)\]/g, '<span style="background:#EBEBEB">[$1]</span>');
+const fid = p => 'f-' + p.replace(/\./g, '__');
+function head(title, blurb, n){
+  return `<div class="ph">${n ? `<span class="stepno">Step ${n} of 8</span>` : ''}<h1>${esc(title)}</h1>${blurb ? `<p>${esc(blurb)}</p>` : ''}</div>`;
+}
+function optHTML(o, v){
+  return o.map(x => { const [val, lab] = Array.isArray(x) ? x : [x, x]; return `<option value="${esc(val)}"${String(v ?? '') === String(val) ? ' selected' : ''}>${esc(lab)}</option>`; }).join('');
+}
+function controlHTML(f, path, v, attr){
+  const id = fid(path);
+  switch(f.t){
+    case 'area': return `<textarea id="${id}" ${attr}="${esc(path)}" rows="${f.rows || 3}">${esc(v)}</textarea>`;
+    case 'select': return `<select id="${id}" ${attr}="${esc(path)}"><option value="">Choose</option>${optHTML(f.o, v)}</select>`;
+    case 'yn': return `<span class="yn" id="${id}" tabindex="-1" role="radiogroup" aria-labelledby="${id}-l">${[['yes','Yes'],['no','No']].map(([val, lab]) => `<label><input type="radio" name="${id}" value="${val}" ${attr}="${esc(path)}"${v === val ? ' checked' : ''}> ${lab}</label>`).join('')}</span>`;
+    case 'date': return `<input type="date" id="${id}" ${attr}="${esc(path)}" value="${esc(v)}">`;
+    case 'time': return `<input type="time" id="${id}" ${attr}="${esc(path)}" value="${esc(v)}">`;
+    case 'number': return `<input type="number" min="0" id="${id}" ${attr}="${esc(path)}" value="${esc(v)}">`;
+    case 'money': return `<input type="text" inputmode="decimal" placeholder="$0.00" id="${id}" ${attr}="${esc(path)}" value="${esc(v)}">`;
+    default: return `<input type="text" id="${id}" ${attr}="${esc(path)}" value="${esc(v)}" autocomplete="off">`;
+  }
+}
+const needText = tags => tags ? `Needed for ${tags.join(', ')}` : '';
+function fieldHTML(f, M, base){
+  const path = base ? `${base}.${f.k}` : f.k;
+  const v = getPath(M, path);
+  const tags = NEED.get(path);
+  const lab = f.t === 'yn' ? `<span class="lab" id="${fid(path)}-l">${esc(f.l)}</span>` : `<label for="${fid(path)}">${esc(f.l)}</label>`;
+  return `<div class="f${f.w === 'full' ? ' full' : ''}${tags ? ' need' : ''}" data-p="${esc(path)}">${lab}${controlHTML(f, path, v, 'data-path')}${f.h ? `<span class="hint">${esc(f.h)}</span>` : ''}<span class="needfor"${tags ? '' : ' hidden'}>${needText(tags)}</span></div>`;
+}
+function listHTML(f, M){
+  const arr = getPath(M, f.k) || [];
+  const tags = NEED.get(f.k);
+  const items = arr.map((it, i) => `<div class="item"><header><b>${esc(f.item)} ${i + 1}</b><button class="btn sm" data-act="rm" data-path="${esc(f.k)}" data-i="${i}">Remove</button></header><div class="fields">${f.fields.filter(sf => !sf.show || sf.show(it || {}, M)).map(sf => fieldHTML(sf, M, `${f.k}.${i}`)).join('')}</div></div>`).join('');
+  return `<div class="f full${tags ? ' need' : ''}" data-p="${esc(f.k)}"><span class="lab">${esc(f.l)}</span>${f.h ? `<span class="hint">${esc(f.h)}</span>` : ''}<div class="items">${items || '<p class="empty-list">None entered.</p>'}</div><div style="margin-top:6px"><button class="btn sm" id="add-${fid(f.k)}" data-act="add" data-path="${esc(f.k)}">Add ${esc(f.item.toLowerCase())}</button></div><span class="needfor"${tags ? '' : ' hidden'}>${needText(tags)}</span></div>`;
+}
+function groupHTML(g, M){
+  const isAuto = M.caption?.caseType === 'auto';
+  if(g.auto && !isAuto) return '';
+  if(g.show && !g.show(M)) return '';
+  const fs = g.fields.filter(f => (!f.auto || isAuto) && (!f.show || f.show(M)));
+  return `<section class="group"><header><h3>${esc(g.title)}</h3>${g.note ? `<p class="note">${esc(g.note)}</p>` : ''}</header><div class="gbody"><div class="fields">${fs.map(f => f.t === 'list' ? listHTML(f, M) : fieldHTML(f, M, '')).join('')}</div></div></section>`;
+}
+function updateNeed(){
+  $$('[data-p]', main).forEach(el => {
+    const tags = NEED.get(el.dataset.p);
+    el.classList.toggle('need', !!tags);
+    const nf = el.querySelector(':scope > .needfor');
+    if(nf){ nf.hidden = !tags; nf.textContent = needText(tags); }
+  });
+}
+
+/* ======================================================================
+   DOCUMENT BUILDERS (shared by preview, Word download, and clipboard)
+   ====================================================================== */
+const DOC_FONT = `font-family:'Times New Roman',Times,serif;font-size:12pt;color:#000`;
+function captionHTML(M, F, title){
+  const cap = M.caption || {};
+  const defsArr = (cap.defendants || '[DEFENDANTS]').split('\n').map(s => s.trim()).filter(Boolean);
+  const addr = (F.address || '').split('\n').map(esc).join('<br>');
+  const td = 'vertical-align:top;font-size:12pt;line-height:1.35;';
+  return `<p style="margin:0 0 16pt;font-size:11pt;line-height:1.3">${esc(F.attorney)}${F.attorneyId ? ` (Attorney ID No. ${esc(F.attorneyId)})` : ''}<br>${esc(F.name)}<br>${addr}<br>${esc(F.phone)}${F.email ? `<br>${esc(F.email)}` : ''}<br>Attorneys for Plaintiff, ${esc(cap.plaintiff || '')}</p>`
+  + `<table style="width:100%;border-collapse:collapse;margin:0 0 18pt" cellpadding="0" cellspacing="0"><tr>`
+  + `<td style="${td}width:50%;border-right:1px solid #000;border-bottom:1px solid #000;padding:4pt 12pt 12pt 0">${esc((cap.plaintiff || '[PLAINTIFF]').toUpperCase())},<p style="margin:6pt 0 6pt 1.4in">Plaintiff,</p><p style="margin:0 0 6pt">v.</p>${defsArr.map(s => esc(s.toUpperCase())).join(';<br>')},<p style="margin:6pt 0 0 1.4in">Defendant${defsArr.length > 1 ? 's' : ''}.</p></td>`
+  + `<td style="${td}padding:4pt 0 12pt 14pt">SUPERIOR COURT OF NEW JERSEY<br>LAW DIVISION: ${esc((cap.county || '[COUNTY]').toUpperCase())} COUNTY<br><br>DOCKET NO.: ${esc(cap.docket || '[DOCKET]')}<br><br>Civil Action<br><br><b>${esc(title)}</b></td></tr></table>`;
+}
+const docParas = (text, indent) => text.split(/\n{2,}/).map(b => `<p style="margin:0 0 8pt ${indent};line-height:1.5">${hlDoc(b).replace(/\n/g, '<br>')}</p>`).join('');
+const docTitle = () => SUPP.length ? "PLAINTIFF'S ANSWERS TO FORM A UNIFORM INTERROGATORIES AND SUPPLEMENTAL INTERROGATORIES" : "PLAINTIFF'S ANSWERS TO FORM A UNIFORM INTERROGATORIES";
+function answersDocHTML(){
+  const F = CTX.firm;
+  let h = `<div style="${DOC_FONT}">` + captionHTML(cur, F, docTitle());
+  h += docParas(renderTpl(F.prelim || '', CTX).text, '0');
+  A.forEach(a => {
+    if(a.q.n === 25) h += `<p style="margin:18pt 0 6pt;text-align:center;font-weight:bold">TO BE ANSWERED ONLY IN AUTOMOBILE ACCIDENT CASES</p>`;
+    h += `<p style="margin:14pt 0 6pt;line-height:1.4"><b>${a.q.n}.</b>&nbsp;&nbsp;${esc(a.q.text).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>')}</p>`;
+    h += `<p style="margin:0 0 4pt 0.5in"><b>ANSWER:</b></p>` + docParas(a.final, '0.5in');
+    if(a.desig) h += `<p style="margin:0 0 8pt 0.5in;font-style:italic;font-size:11pt">${hlDoc(a.desig)}</p>`;
+  });
+  if(SUPP.length){
+    h += `<p style="margin:22pt 0 6pt;text-align:center;font-weight:bold">ANSWERS TO SUPPLEMENTAL INTERROGATORIES</p>`;
+    SUPP.forEach(s => {
+      h += `<p style="margin:14pt 0 6pt;line-height:1.4"><b>Supplemental Interrogatory No. ${s.n}.</b>&nbsp;&nbsp;${esc(s.q).replace(/\n/g, '<br>')}</p>`;
+      h += `<p style="margin:0 0 4pt 0.5in"><b>ANSWER:</b></p>` + docParas(s.a.trim() ? s.a : '[MISSING: Answer not written]', '0.5in');
+    });
+  }
+  h += `<p style="margin:26pt 0 8pt;text-align:center;font-weight:bold">CERTIFICATION</p>` + docParas(F.cert || '', '0');
+  h += `<table style="width:100%;margin-top:30pt;border-collapse:collapse"><tr><td style="width:45%;vertical-align:bottom;font-size:12pt">Dated: ____________________</td><td style="vertical-align:bottom;font-size:12pt">______________________________<br>${esc(cur.client?.fullName || cur.caption?.plaintiff || '')}</td></tr></table></div>`;
+  return h;
+}
+function answersText(){
+  const F = CTX.firm, cap = cur.caption || {};
+  let t = `${(cap.plaintiff || '').toUpperCase()}, Plaintiff, v. ${(cap.defendants || '').split('\n').filter(Boolean).join('; ').toUpperCase()}, Defendants.\nSUPERIOR COURT OF NEW JERSEY, LAW DIVISION: ${(cap.county || '').toUpperCase()} COUNTY\nDOCKET NO.: ${cap.docket || ''}\nCivil Action\n\n${docTitle()}\n\n`;
+  t += renderTpl(F.prelim || '', CTX).text + '\n\n';
+  A.forEach(a => { if(a.q.n === 25) t += 'TO BE ANSWERED ONLY IN AUTOMOBILE ACCIDENT CASES\n\n'; t += `${a.q.n}. ${a.q.text}\n\nANSWER:\n${a.final}${a.desig ? '\n\n' + a.desig : ''}\n\n`; });
+  if(SUPP.length){ t += 'ANSWERS TO SUPPLEMENTAL INTERROGATORIES\n\n'; SUPP.forEach(s => { t += `Supplemental Interrogatory No. ${s.n}. ${s.q}\n\nANSWER:\n${s.a || '[MISSING: Answer not written]'}\n\n`; }); }
+  return t + `CERTIFICATION\n\n${F.cert}\n\nDated: ______________     ______________________________\n${cur.client?.fullName || ''}\n`;
+}
+function bodyHTML(text){
+  return text.split(/\n{2,}/).map(block => {
+    const lines = block.split('\n');
+    if(lines.every(l => l.startsWith('## '))) return `<p style="margin:14pt 0 8pt;text-align:center;font-weight:bold;line-height:1.4">${lines.map(l => hlDoc(l.slice(3))).join('<br>')}</p>`;
+    if(lines.every(l => l.startsWith('| '))) return `<p style="margin:0 0 12pt;line-height:1.4">${lines.map(l => hlDoc(l.slice(2))).join('<br>')}</p>`;
+    return `<p style="margin:0 0 10pt;text-indent:0.5in;line-height:1.7;text-align:justify">${lines.map(hlDoc).join('<br>')}</p>`;
+  }).join('');
+}
+function sigHTML(kind, m, F){
+  const dated = m.serviceDate ? fDate(m.serviceDate) : '____________________';
+  if(kind === 'order') return `<p style="margin:30pt 0 0 3.2in;line-height:1.4">______________________________<br>Hon. ${esc(m.judge || '____________')}, J.S.C.</p><p style="margin:20pt 0 0;line-height:1.6">______ Opposed<br>______ Unopposed</p>`;
+  if(kind === 'cert') return `<table style="width:100%;margin-top:26pt;border-collapse:collapse"><tr><td style="width:45%;vertical-align:bottom;font-size:12pt">Dated: ${esc(dated)}</td><td style="vertical-align:bottom;font-size:12pt">______________________________<br>${esc(F.attorney)}</td></tr></table>`;
+  return `<table style="width:100%;margin-top:26pt;border-collapse:collapse"><tr><td style="width:45%;vertical-align:bottom;font-size:12pt">Dated: ${esc(dated)}</td><td style="vertical-align:bottom;font-size:12pt;line-height:1.4">${esc(F.name)}<br>Attorneys for Plaintiff<br><br>By: ___________________________<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${esc(F.attorney)}</td></tr></table>`;
+}
+function wordFile(body, title){
+  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${esc(title)}</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]--><style>@page Section1{size:8.5in 11.0in;margin:1in 1in 1in 1in;}div.Section1{page:Section1;}body{font-family:"Times New Roman",serif;font-size:12pt;}</style></head><body><div class="Section1">${body}</div></body></html>`;
+}
+function download(name, content, type){
+  try{
+    const blob = new Blob(type === 'application/msword' ? ['﻿', content] : [content], {type});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+    toast(`Saved ${name}`);
+  }catch(e){ toast('The browser blocked the download.'); }
+}
+async function copyDoc(html, text, node){
+  try{
+    if(window.ClipboardItem && navigator.clipboard?.write){
+      await navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([html], {type: 'text/html'}), 'text/plain': new Blob([text], {type: 'text/plain'})})]);
+      return toast('Copied. Paste into the firm\'s Word pleading template.');
+    }
+  }catch(e){}
+  try{
+    const sel = getSelection(); const r = document.createRange(); r.selectNodeContents(node); sel.removeAllRanges(); sel.addRange(r);
+    const ok = document.execCommand('copy');
+    if(ok){ sel.removeAllRanges(); return toast('Copied. Paste into the firm\'s Word pleading template.'); }
+  }catch(e){}
+  try{ await navigator.clipboard.writeText(text); return toast('Copied as plain text.'); }catch(e){}
+  try{ const sel = getSelection(); const r = document.createRange(); r.selectNodeContents(node); sel.removeAllRanges(); sel.addRange(r); }catch(e){}
+  toast('Copying was blocked here. The document is selected; press Ctrl+C.');
+}
+let toastTimer = null;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200); }
+const fileBase = () => (cur.caption?.docket || matterTitle(cur)).replace(/\[[^\]]*\]/g, '').replace(/[^\w\- ]+/g, '').trim() || 'Example';
+
+/* ======================================================================
+   FRAME: title bar and task list
+   ====================================================================== */
+const STEPS = [
+  {id: 'matter', title: 'Matter', blurb: 'Caption, case type, and the dates every deadline runs from.'},
+  {id: 'police', title: 'Police report', blurb: 'Facts transferred from the crash or incident report.'},
+  {id: 'medical', title: 'Medical records', blurb: 'Diagnoses, providers, tests and bills from the records.'},
+  {id: 'client', title: 'Client', blurb: 'Facts only the client can supply. Send the questionnaire to collect them before calling.'},
+  {id: 'attorney', title: 'Attorney decisions', blurb: 'Calls the attorney makes before the answers go out.'},
+  {id: 'review', title: 'Form A answers', blurb: 'Each answer is drafted from the intake screens. The paralegal checks it, then the attorney approves it.'},
+  {id: 'supplemental', title: 'Supplemental questions', blurb: "The defense's added questions. Paste them in, use the firm's standard answers where they fit, and object where needed."},
+  {id: 'finish', title: 'Finish and serve', blurb: 'Deadlines, attachments, HIPAA authorizations, and the finished document.'}
+];
+const TOOLS = [
+  {id: 'motions', title: 'Motion papers', sub: 'Notices, certifications, orders'},
+  {id: 'library', title: 'Forms library', sub: 'Wording, templates, standard answers'},
+  {id: 'settings', title: 'Firm settings', sub: 'Letterhead and defaults'}
+];
+function dueHTML(){
+  const c = CTX.calc;
+  if(cur.served?.date) return `<span class="due ok">Answers served ${fShort(cur.served.date)}</span>`;
+  if(!c.due) return '';
+  const d = daysUntil(c.due);
+  if(d < 0) return `<span class="due late">Answers overdue since ${fDate(c.due)}</span>`;
+  const txt = d === 0 ? 'Answers due today' : `Answers due ${fDay(c.due)} (${d} day${d === 1 ? '' : 's'})`;
+  return `<span class="due${d <= 7 ? ' soon' : ''}">${txt}</span>`;
+}
+function topHTML(){
+  const cap = cur.caption || {};
+  return `<div class="bar"><div class="top-in"><span class="app">Interrogatory &amp; Motion Drafter <span class="demo">Demo</span></span>
+  <span class="mat"><b>${esc(matterTitle(cur))}${cur.example ? ' <span>(fill-in-the-blank example)</span>' : ''}</b><span>${esc(cap.docket || 'No docket number')}${cap.county ? `, ${esc(cap.county)} County` : ''}</span></span>
+  ${dueHTML()}</div></div><div class="notice"><div><b>Demo.</b> Use the fill-in-the-blank example or made-up information only, never client information. What you enter stays in this browser on this computer.</div></div>`;
+}
+function railHTML(){
+  const miss = {};
+  A.forEach(a => a.missing.forEach(mi => { if(mi.step) miss[mi.step] = (miss[mi.step] || 0) + 1; }));
+  SUPP.forEach(s => s.missing.forEach(mi => { if(mi.step) miss[mi.step] = (miss[mi.step] || 0) + 1; }));
+  const nAppr = A.filter(a => a.status === 'approved').length;
+  const nChk = A.filter(a => a.status === 'checked').length;
+  const active = state.view === 'questionnaire' ? 'client' : state.view;
+  let h = '<h4>Answering interrogatories</h4>';
+  STEPS.forEach((s, i) => {
+    let sub;
+    if(i < 5) sub = miss[s.id] ? `<i class="warn">${miss[s.id]} to fill in</i>` : '<i class="ok">Nothing missing</i>';
+    else if(s.id === 'review') sub = `<i${nAppr === A.length ? ' class="ok"' : ''}>${nAppr} of ${A.length} approved${nChk ? `, ${nChk} checked` : ''}</i>`;
+    else if(s.id === 'supplemental'){
+      const blank = SUPP.filter(x => x.status === 'blank').length;
+      sub = SUPP.length ? `<i${blank ? ' class="warn"' : ''}>${SUPP.length} question${SUPP.length === 1 ? '' : 's'}${blank ? `, ${blank} not answered` : ''}</i>` : '<i>None entered</i>';
+    }
+    else sub = `<i>${cur.served?.date ? 'Served ' + fShort(cur.served.date) : CTX.calc.due ? 'Due ' + fShort(CTX.calc.due) : 'Enter key dates'}</i>`;
+    h += `<button class="step${active === s.id ? ' on' : ''}" data-act="go" data-view="${s.id}"${active === s.id ? ' aria-current="page"' : ''}><span class="num">${i + 1}</span><span class="t"><b>${esc(s.title)}</b>${sub}</span></button>`;
+  });
+  h += '<h4>Other tools</h4>';
+  TOOLS.forEach(t => { h += `<button class="step${active === t.id ? ' on' : ''}" data-act="go" data-view="${t.id}"${active === t.id ? ' aria-current="page"' : ''}><span class="num"></span><span class="t"><b>${esc(t.title)}</b><i>${esc(t.sub)}</i></span></button>`; });
+  return h;
+}
+function returnBar(){
+  const r = state.returnTo;
+  if(!r || state.view === r.view) return '';
+  return `<div class="returnbar"><span>${esc(r.note)}</span><button class="btn sm pri" data-act="back">${esc(r.label)}</button></div>`;
+}
+
+/* ======================================================================
+   VIEWS
+   ====================================================================== */
+const main = $('#main');
+function viewIntake(step){
+  const i = STEPS.findIndex(s => s.id === step);
+  const S = STEPS[i];
+  let h = head(S.title, S.blurb, i + 1);
+  if(step === 'matter') h += mattersCard();
+  if(step === 'client') h += `<div class="callout row between"><span>Send the client a plain-language questionnaire built from this screen, blank or filled in for the client to confirm.</span><button class="btn" data-act="go" data-view="questionnaire">Client questionnaire</button></div>`;
+  SCHEMA[step].forEach(g => { h += groupHTML(g, cur); });
+  const next = STEPS[i + 1];
+  if(next) h += `<div class="nextbar"><button class="btn pri" data-act="go" data-view="${next.id}">Continue to ${esc(next.title)}</button></div>`;
+  return h;
+}
+function mattersCard(){
+  const idx = store.get('index') || [];
+  const rows = idx.map(m => `<tr><td>${esc(m.title)}${m.id === cur.id ? ' <b>(open)</b>' : ''}</td><td class="num">${esc(m.docket || '')}</td><td class="num">${esc(fShort((m.updated || '').slice(0, 10)))}</td><td>${m.id === cur.id ? '' : `<button class="btn sm" data-act="open-matter" data-id="${esc(m.id)}">Open</button>`}</td></tr>`).join('');
+  return `<section class="group"><header><h3>Matters on this computer</h3><p class="note">Matters save automatically in this browser. Save matter file keeps a copy as a file you can open again later.</p></header><div class="gbody">
+  <div class="scrollx"><table class="tbl"><thead><tr><th>Matter</th><th>Docket</th><th>Updated</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="4">No saved matters.</td></tr>'}</tbody></table></div>
+  <div class="row" style="margin-top:10px"><button class="btn" data-act="new-matter">New matter</button><button class="btn" data-act="sample">Load fill-in-the-blank example</button><button class="btn" data-act="import-matter">Open a matter file</button><input type="file" id="import-matter" accept=".json,application/json" hidden>${LOCAL ? '<button class="btn" data-act="export-matter">Save matter file</button>' : ''}<button class="btn" data-act="del-matter">Delete this matter</button></div></div></section>`;
+}
+
+/* Form A review */
+function inFilter(a){
+  return state.filter === 'all' || (state.filter === 'missing' && a.status === 'missing') || (state.filter === 'para' && (a.status === 'draft' || a.status === 'edited' || a.status === 'recheck')) || (state.filter === 'atty' && a.status === 'checked');
+}
+function statsHTML(){
+  const c = s => A.filter(a => a.status === s).length;
+  return `<span class="c-green"><b>${c('approved')}</b> approved</span><span class="c-blue"><b>${c('checked')}</b> awaiting attorney</span>`
+    + `<span><b>${c('draft') + c('edited')}</b> awaiting paralegal</span><span class="c-amber"><b>${c('recheck')}</b> need recheck</span>`
+    + `<span class="c-red"><b>${c('missing')}</b> need information</span>`;
+}
+function navTargets(){
+  const list = A.filter(inFilter);
+  const n = state.q;
+  return {prev: [...list].reverse().find(a => a.q.n < n), next: list.find(a => a.q.n > n)};
+}
+function indexRows(sel){
+  const rows = A.filter(inFilter);
+  return rows.map(a => `<tr class="${a.q.n === sel ? 'sel' : ''}" data-act="q" data-q="${a.q.n}"><td>${a.q.n}</td><td><button class="qbtn" data-act="q" data-q="${a.q.n}">${esc(a.q.s)}</button></td><td>${stHTML(a.status, true)}</td></tr>`).join('') || '<tr><td colspan="3">No questions match this filter.</td></tr>';
+}
+function viewReview(){
+  if(!A.length) return head('Form A answers', '', 6);
+  const sel = A.find(a => a.q.n === state.q) || A[0];
+  state.q = sel.q.n;
+  return head('Form A answers', STEPS[5].blurb, 6) + `<div class="rv">
+  <section class="card rv-index"><header><h3>Questions</h3></header>
+    <div class="stats" id="rv-stats">${statsHTML()}</div>
+    <div class="filters" role="group" aria-label="Show">${[['all','All'],['missing','Needs information'],['para','Awaiting paralegal'],['atty','Awaiting attorney']].map(([v, l]) => `<button class="${state.filter === v ? 'on' : ''}" data-act="filter" data-f="${v}"${state.filter === v ? ' aria-pressed="true"' : ''}>${l}</button>`).join('')}</div>
+    <div class="scroll"><table class="qindex"><thead><tr><th>No.</th><th>Subject</th><th>Status</th></tr></thead><tbody id="ix-body">${indexRows(sel.q.n)}</tbody></table></div>
+  </section>${qcardHTML(sel)}</div>`;
+}
+function clauseOptions(){
+  const L = lib().clauses;
+  const grp = (c, label) => { const o = L.map((x, i) => x.c === c ? `<option value="${i}">${esc(x.t)}</option>` : '').join(''); return o ? `<optgroup label="${label}">${o}</optgroup>` : ''; };
+  return grp('answer', 'Standard language') + grp('objection', 'Objections');
+}
+function signoffHTML(paraOK, attyOK, blocked, attrs){
+  const who = esc(CTX.firm.paralegal || 'paralegal');
+  if(blocked) return '<div class="signoff"><span class="muted small">Complete the answer before signing off.</span></div>';
+  if(attyOK) return `<div class="signoff">${stHTML('approved')}<button class="btn sm quiet" data-act="atty" data-v="0" ${attrs}>Undo approval</button></div>`;
+  if(paraOK) return `<div class="signoff">${stHTML('checked')}<button class="btn sm quiet" data-act="para" data-v="0" ${attrs}>Undo check</button><button class="btn approve" data-act="atty" data-v="1" ${attrs}>Approve as attorney</button></div>`;
+  return `<div class="signoff"><button class="btn check" data-act="para" data-v="1" ${attrs}>Mark as checked by ${who}</button></div>`;
+}
+function qcardHTML(a){
+  const n = a.q.n, ed = state.editing;
+  const {prev, next} = navTargets();
+  const changed = (a.saved.paraOK || a.saved.reviewed) && !a.paraOK && !a.attyOK && !a.nMiss;
+  return `<article class="qcard" id="qcard">
+  <header class="qhead"><div><h2>Interrogatory No. ${n}</h2><div class="qsrc">${esc(a.q.s)}${n >= 25 ? ', automobile cases only' : ''}. Source: ${a.q.src.map(s => SRC[s]).join(', ')}.</div></div><span id="qpill">${stHTML(a.status)}</span></header>
+  <div class="qtext"><span class="lab">Question as served</span>${esc(a.q.text).replace(/\n/g, '<br>')}</div>
+  <div class="ans">
+    ${a.stale ? `<div class="banner"><span>The intake information behind this answer changed after the wording was edited.</span><span class="row"><button class="btn sm" data-act="revert">Use the new automatic draft</button><button class="btn sm" data-act="keep">Keep the edited wording</button></span></div>` : ''}
+    ${changed ? '<div class="banner">This answer changed after it was checked or approved. It needs to be checked again.</div>' : ''}
+    <div class="row between" style="margin-bottom:6px"><b>Answer</b><span class="muted small">${a.edited ? 'Edited by staff' : 'Automatic draft from the intake screens'}</span></div>
+    ${ed ? `<textarea id="ans-edit" data-ans="${n}" aria-label="Answer to Interrogatory No. ${n}">${esc(a.final)}</textarea>` : `<div class="ans-view">${hl(a.final)}</div>`}
+    ${a.desig ? `<p class="desig">Source designation under R. 4:17-4(a): ${hl(a.desig)}</p>` : ''}
+    ${a.missing.length ? needsHTML(a.missing, `data-from="review"`) : ''}
+    <div class="row tools"><button class="btn" data-act="edit">${ed ? 'Done editing' : 'Edit wording'}</button>${a.edited ? '<button class="btn" data-act="revert">Return to automatic draft</button>' : ''}
+      <label class="sr" for="clause-pick">Insert standard language or an objection</label><select id="clause-pick"><option value="">Insert standard language or an objection</option>${clauseOptions()}</select></div>
+    <div class="f" style="margin-top:12px;max-width:86ch"><label for="note-${n}">Internal note (not printed)</label><textarea id="note-${n}" data-note="${n}" rows="2" placeholder="Questions for the attorney, follow-ups with the client">${esc(a.saved.note || '')}</textarea></div>
+  </div>
+  <footer class="qfoot"><button class="btn" data-act="prev"${prev ? '' : ' disabled'}>Previous</button>${signoffHTML(a.paraOK, a.attyOK, a.nMiss > 0, '')}<button class="btn pri" data-act="next"${next ? '' : ' disabled'}>Next</button></footer>
+  </article>`;
+}
+function needsHTML(missing, extra){
+  return `<div class="needs"><b>${missing.length} item${missing.length === 1 ? '' : 's'} needed before this answer is complete</b><ul>${missing.map(mi => `<li><span>${esc(mi.label)}${mi.step && STEP_NAME[mi.step] ? ` <span class="muted">(${STEP_NAME[mi.step]})</span>` : ''}</span><button class="btn sm" data-act="jump" data-path="${esc(mi.path)}" ${extra}>Fill in</button></li>`).join('')}</ul></div>`;
+}
+
+/* supplemental questions */
+function suppFlagsHTML(s){
+  let h = '';
+  if(s.over) h += `<div class="callout amber row between"><span>This is question ${s.n}. Only ten supplemental questions may be served without leave of court.</span><button class="btn sm" data-act="supp-obj" data-i="${s.i}" data-o="ten">Insert objection</button></div>`;
+  if(s.subparts) h += `<div class="callout amber row between"><span>This question appears to contain subparts.</span><button class="btn sm" data-act="supp-obj" data-i="${s.i}" data-o="subparts">Insert objection</button></div>`;
+  h += `<div class="row sugg"><span>Standard answers that may fit:</span>${s.sugg.length ? s.sugg.map(g => `<button class="btn sm" data-act="supp-use" data-i="${s.i}" data-k="${g.k}">${esc(g.t)}</button>`).join('') : '<span class="muted">none matched. Choose one from the list below or write the answer.</span>'}</div>`;
+  return h;
+}
+function suppItemHTML(s){
+  const L = lib();
+  const objOpts = L.clauses.map((c, i) => c.c === 'objection' ? `<option value="${i}">${esc(c.t)}</option>` : '').join('');
+  return `<section class="group supp" id="supp-${s.i}"><header><h3>Supplemental Interrogatory No. ${s.n}</h3><span id="ss-${s.i}">${stHTML(s.status)}</span></header><div class="gbody">
+   <div class="f"><label for="sq-${s.i}">Question as served</label><textarea id="sq-${s.i}" data-sq="${s.i}" rows="2">${esc(s.q)}</textarea></div>
+   <div id="sx-${s.i}" style="display:flex;flex-direction:column;gap:10px">${suppFlagsHTML(s)}</div>
+   <div class="row pick"><label class="sr" for="sp-${s.i}">Use another standard answer</label><select id="sp-${s.i}" data-supp-pick="${s.i}"><option value="">Use another standard answer</option>${L.supp.map((e, k) => `<option value="${k}">${esc(e.t)}</option>`).join('')}</select><label class="sr" for="so-${s.i}">Add an objection</label><select id="so-${s.i}" data-supp-obj="${s.i}"><option value="">Add an objection</option>${objOpts}</select></div>
+   <div class="f"><label for="sa-${s.i}">Answer</label><textarea id="sa-${s.i}" data-sa="${s.i}" rows="5">${esc(s.a)}</textarea></div>
+   ${s.missing.length ? needsHTML(s.missing, `data-from="supp" data-i="${s.i}"`) : ''}
+   <div class="row between"><button class="btn sm" data-act="supp-rm" data-i="${s.i}">Remove question</button><span id="so2-${s.i}">${signoffHTML(s.paraOK, s.attyOK, s.nMiss > 0, `data-supp="${s.i}"`)}</span></div>
+  </div></section>`;
+}
+function viewSupp(){
+  fillSuppMarkers(); compute();
+  const blank = SUPP.filter(s => s.status === 'blank').length, appr = SUPP.filter(s => s.status === 'approved').length;
+  let h = head('Supplemental questions', STEPS[6].blurb, 7);
+  h += `<div class="callout grey">Under R. 4:17-1(b)(1), each party may serve ten supplemental questions, without subparts, without leave of court. Questions past the tenth, and questions that appear to have subparts, are flagged with the matching objection. Standard answers come from the Forms library and fill in from the Client screen.</div>`;
+  h += `<section class="group"><header><h3>Add questions</h3><p class="note">Paste the defense's supplemental questions as served. Numbered questions are split automatically.</p></header><div class="gbody"><div class="f"><label for="supp-paste">Questions to add</label><textarea id="supp-paste" rows="4" placeholder="1. State whether..."></textarea></div><div class="row" style="margin-top:8px"><button class="btn pri" data-act="supp-split">Add these questions</button><button class="btn" data-act="supp-add">Add one blank question</button></div></div></section>`;
+  if(SUPP.length) h += `<p style="margin:0 0 10px"><b>${SUPP.length}</b> question${SUPP.length === 1 ? '' : 's'}: ${appr} approved by the attorney, ${blank} not yet answered.</p>`;
+  else h += '<p class="muted">No supplemental questions have been entered for this matter.</p>';
+  SUPP.forEach(s => { h += suppItemHTML(s); });
+  h += `<div class="nextbar"><button class="btn pri" data-act="go" data-view="finish">Continue to Finish and serve</button></div>`;
+  return h;
+}
+function splitQuestions(raw){
+  const lines = raw.replace(/\r/g, '').split('\n');
+  const out = []; let curQ = null;
+  const re = /^\s*(?:supplemental\s+(?:interrogatory|question)\s*)?(?:no\.?\s*)?(\d{1,2})\s*[.):]\s+(.*)$/i;
+  lines.forEach(line => {
+    const m = re.exec(line);
+    if(m){ if(curQ != null) out.push(curQ); curQ = m[2]; }
+    else if(curQ != null){ curQ += line.trim() ? ' ' + line.trim() : ''; }
+  });
+  if(curQ != null) out.push(curQ);
+  if(!out.length && raw.trim()) out.push(raw.trim());
+  return out.map(s => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+}
+
+/* finish */
+function dateRow(label, sub, isoDate, done){
+  if(!isoDate) return `<tr><th>${label}${sub ? `<small>${sub}</small>` : ''}</th><td class="muted">Enter dates on the Matter screen</td></tr>`;
+  const d = daysUntil(isoDate);
+  const rel = done ? `<span class="green-text">${done}</span>` : (d < 0 ? `<span class="red-text">${-d} day${d === -1 ? '' : 's'} ago</span>` : d === 0 ? '<span class="red-text">Today</span>' : d <= 7 ? `<span class="amber-text">In ${d} day${d === 1 ? '' : 's'}</span>` : `In ${d} days`);
+  return `<tr><th>${label}${sub ? `<small>${sub}</small>` : ''}</th><td class="num">${fDay(isoDate)}<small>${rel}</small></td></tr>`;
+}
+function viewFinish(){
+  const c = CTX.calc, M = cur;
+  const missA = A.reduce((s, a) => s + a.nMiss, 0), missS = SUPP.reduce((s, x) => s + x.nMiss, 0);
+  const awaitPara = A.filter(a => a.status === 'draft' || a.status === 'edited' || a.status === 'recheck').length + SUPP.filter(s => s.status === 'draft' || s.status === 'recheck').length;
+  const awaitAtty = A.filter(a => a.status === 'checked').length + SUPP.filter(s => s.status === 'checked').length;
+  const att = c.attachments, attDone = att.filter(x => M.checklist?.['att_' + x[0]]).length;
+  const hip = c.hipaa, hipDone = hip.filter(p => M.checklist?.['hipaa_' + p.name]).length;
+  const total = A.length + SUPP.length;
+  const approved = A.filter(a => a.status === 'approved').length + SUPP.filter(s => s.status === 'approved').length;
+  const ready = !missA && !missS && approved === total && attDone === att.length && hipDone === hip.length;
+  const rolled = c.dueRaw && c.due !== c.dueRaw;
+  let h = head('Finish and serve', STEPS[7].blurb, 8);
+  h += `<div class="grid2">
+  <section class="card"><header><h3>Deadlines</h3></header><div class="gbody"><table class="tbl"><tbody>
+    <tr><th>Defendant's Answer served<small>Form A is deemed served on plaintiff that day</small></th><td class="num">${M.caption?.answerServed ? fDay(M.caption.answerServed) : '<span class="muted">Not entered</span>'}</td></tr>
+    ${dateRow('Form A answers due', `30 days, R. 4:17-1(b)(2).${rolled ? ` Day 30 (${fShort(c.dueRaw)}) falls on a weekend, so the deadline moves to the next business day, R. 1:3-1.` : ''}`, c.due, M.served?.date ? 'Served ' + fDate(M.served.date) : '')}
+    ${c.isAuto && M.attorney?.threshold === 'limitation' ? dateRow('Physician certification of permanency', '60 days after the Answer, N.J.S.A. 39:6A-8(a)', c.thresholdDue) : ''}
+    ${c.amendBy ? dateRow('Last day to serve amended answers', '20 days before discovery ends, R. 4:17-7', c.amendBy) : ''}
+  </tbody></table><p class="note" style="margin-top:8px">Calendar days, moved off weekends. Court holidays are not built in yet; confirm against the Judiciary calendar.</p></div></section>
+  <section class="card"><header><h3>Ready to serve?</h3></header><div class="gbody ready">
+    <div><span><b class="green-text">${approved}</b> of ${total} answers approved by the attorney</span></div>
+    <div><span><b class="${missA + missS ? 'red-text' : ''}">${missA + missS}</b> item${missA + missS === 1 ? '' : 's'} still missing</span>${missA ? '<button class="btn sm" data-act="go-filter" data-f="missing">Show Form A items</button>' : ''}${missS ? '<button class="btn sm" data-act="go" data-view="supplemental">Show supplemental items</button>' : ''}</div>
+    <div><span><b>${awaitPara}</b> awaiting paralegal check</span>${awaitPara ? '<button class="btn sm" data-act="go-filter" data-f="para">Review</button>' : ''}</div>
+    <div><span><b>${awaitAtty}</b> awaiting attorney approval</span>${awaitAtty ? '<button class="btn sm" data-act="go-filter" data-f="atty">Review</button>' : ''}</div>
+    <div><span><b>${attDone}</b> of ${att.length} attachments gathered</span></div>
+    <div><span><b>${hipDone}</b> of ${hip.length} HIPAA authorizations signed</span></div>
+    ${ready ? '<div class="callout green" style="margin:0">Everything is in place. Serve the answers with the attachments and HIPAA authorizations, then record the date below.</div>' : ''}
+    <div class="f" style="max-width:260px"><label for="f-served__date">Date the answers were served</label><input type="date" id="f-served__date" data-path="served.date" value="${esc(M.served?.date || '')}"><span class="hint">The motion papers use this date.</span></div>
+  </div></section></div>
+  <div class="grid2">
+  <section class="card"><header><h3>Attachments to annex</h3><p class="note">Built from the answers. Check each one off as it goes into the packet.</p></header><div class="gbody">
+    <ul class="checks">${att.map(x => `<li><input type="checkbox" id="att-${x[0]}" data-check="att_${x[0]}"${M.checklist?.['att_' + x[0]] ? ' checked' : ''}><label for="att-${x[0]}">${esc(x[1])}<small>${esc(x[2])}</small></label></li>`).join('')}</ul></div></section>
+  <section class="card"><header><h3>HIPAA authorizations</h3><p class="note">R. 4:17-4 requires an executed authorization for each health care provider named in the answers, served with them. Non-treating experts are excluded.</p></header><div class="gbody">
+    <ul class="checks">${hip.map((p, i) => `<li><input type="checkbox" id="hip-${i}" data-check="hipaa_${esc(p.name)}"${M.checklist?.['hipaa_' + p.name] ? ' checked' : ''}><label for="hip-${i}">${esc(p.name)}<small>${esc(p.address || '')}</small></label></li>`).join('') || '<li class="muted">No providers entered yet.</li>'}</ul></div></section>
+  </div>
+  <div class="print-root">
+  <div class="docbar"><h2>The answers as they will be served</h2><div class="row"><button class="btn pri" data-act="copy-answers">Copy for Word</button>${LOCAL ? '<button class="btn" data-act="dl-answers">Download Word file</button><button class="btn" data-act="print">Print</button>' : ''}</div></div>
+  ${missA + missS ? `<div class="callout red">${missA + missS} item${missA + missS === 1 ? ' is' : 's are'} still marked MISSING in the document and will be shaded in Word.</div>` : ''}
+  <div class="paper-wrap"><div class="paper" id="doc-paper">${answersDocHTML()}</div></div></div>`;
+  return h;
+}
+
+/* client questionnaire */
+function questDoc(){
+  const isAuto = cur.caption?.caseType === 'auto', pre = state.qMode === 'prefill', F = CTX.firm;
+  const allFields = Object.values(SCHEMA).flat().flatMap(g => g.fields);
+  const valOf = k => {
+    const v = getPath(cur, k);
+    const meta = allFields.find(f => f.k === k);
+    if(Array.isArray(v)) return v.map(it => Object.values(it).filter(x => typeof x === 'string' && x).join(', ')).filter(Boolean).join('\n');
+    if(v === 'yes') return 'Yes'; if(v === 'no') return 'No';
+    if(meta?.t === 'date' && v) return fDate(v);
+    if(meta?.t === 'money' && v) return fMoney(v);
+    if(meta?.o && v){ const o = meta.o.find(x => Array.isArray(x) && x[0] === v); if(o) return o[1]; }
+    return v || '';
+  };
+  const line = '<div style="margin:0 0 2pt 0.4in;border-bottom:1px solid #777;height:20pt"></div>';
+  let n = 0;
+  let h = `<div style="${DOC_FONT}"><p style="text-align:center;font-weight:bold;margin:0 0 4pt;font-size:13pt">CLIENT INFORMATION QUESTIONNAIRE</p><p style="text-align:center;margin:0 0 14pt">${esc(F.name)}, ${esc(F.phone)}</p>`;
+  h += `<p style="margin:0 0 6pt">Re: ${esc(matterTitle(cur))}${cur.caption?.docket ? `, Docket No. ${esc(cur.caption.docket)}` : ''}</p>`;
+  h += `<p style="margin:0 0 14pt;line-height:1.5">${pre ? 'We filled in what we already know. Please read each answer, correct anything that is wrong, and fill in anything left blank.' : 'The court requires written answers to a standard set of questions in your case, called interrogatories. Please answer as completely as you can.'} If you do not know an answer, write "I don't know." Call our office with any questions.</p>`;
+  SCHEMA.client.forEach(g => {
+    if(g.auto && !isAuto) return;
+    const asks = g.fields.filter(f => f.ask && (!f.auto || isAuto));
+    if(!asks.length) return;
+    h += `<p style="margin:16pt 0 6pt;font-weight:bold">${esc(g.title.replace("in the client's words", 'in your words').replace('Background the defense often asks about', 'Background'))}</p>`;
+    asks.forEach(f => {
+      n++;
+      h += `<p style="margin:8pt 0 4pt"><b>${n}.</b> ${esc(f.ask)}</p>`;
+      if(pre){
+        const vals = [f.k, ...(f.askWith || [])].map(valOf).filter(Boolean).join('\n');
+        h += vals ? `<p style="margin:0 0 4pt 0.4in;padding:3pt 8pt;border-left:2px solid #000;line-height:1.45">${esc(vals).replace(/\n/g, '<br>')}</p><p style="margin:0 0 4pt 0.4in;font-size:10.5pt">Correct? ____ Yes ____ No. Changes: ________________________________</p>` : line + line;
+      } else {
+        const k = f.t === 'area' || f.t === 'list' || (f.askWith || []).length ? 4 : 1;
+        for(let i = 0; i < k; i++) h += line;
+      }
+    });
+  });
+  return h + `<p style="margin:22pt 0 0">Signature: ______________________________ &nbsp;&nbsp; Date: ______________</p></div>`;
+}
+function viewQuestionnaire(){
+  return head('Client questionnaire', 'Plain-language questions built from the Client screen. Send it blank, or filled in so the client only confirms or corrects. Staff then type the answers into the Client screen.', 4)
+  + `<div class="print-root"><div class="docbar"><div class="row"><label for="qmode-sel"><b>Version</b></label><select id="qmode-sel" style="width:auto"><option value="blank"${state.qMode === 'blank' ? ' selected' : ''}>Blank</option><option value="prefill"${state.qMode === 'prefill' ? ' selected' : ''}>Filled in for the client to confirm</option></select></div>
+  <div class="row"><button class="btn" data-act="go" data-view="client">Back to Client screen</button><button class="btn pri" data-act="copy-quest">Copy for Word</button>${LOCAL ? '<button class="btn" data-act="dl-quest">Download Word file</button><button class="btn" data-act="print">Print</button>' : ''}</div></div>
+  <div class="paper-wrap"><div class="paper" id="quest-paper">${questDoc()}</div></div></div>`;
+}
+
+/* motion papers */
+function motionData(def){
+  cur.motions = cur.motions || {};
+  const stored = cur.motions[def.id] || {};
+  const d = def.defaults(cur);
+  const m = {...stored};
+  Object.keys(d).forEach(k => { if(!(k in stored)) m[k] = d[k]; });
+  return m;
+}
+function motionCalc(def, m){
+  const c = {};
+  if(def.id === 'mov4235' && m.defAnswerServed) c.formCDue = addDays(m.defAnswerServed, 60);
+  if(def.id === 'movExt' && m.discoveryEnd) c.newEnd = addDays(m.discoveryEnd, num(m.days) || 60);
+  if(def.id === 'opp4235') c.pn = m.withdrawRequest ? 5 : 4;
+  if(def.id === 'oppSJ'){ const k = Math.min(80, Math.max(1, num(m.paraCount) || 1)); c.rsmf = Array.from({length: k}, (_, i) => i + 1); }
+  return c;
+}
+function motionCtx(def){
+  const m = motionData(def);
+  def.fields.forEach(f => { FIELD_INDEX['m.' + f.k] = {l: f.l, step: 'motions', t: f.t || 'text'}; });
+  return {...CTX, m, calc: {...CTX.calc, ...motionCalc(def, m)}};
+}
+function motionDoc(def, doc, mctx){
+  const r = renderTpl(doc.tpl, mctx);
+  return {html: `<div style="${DOC_FONT}">` + captionHTML(cur, mctx.firm, doc.heading) + bodyHTML(r.text) + sigHTML(doc.sig, mctx.m, mctx.firm) + '</div>', text: r.text, missing: r.missing};
+}
+function motionDeadlinesHTML(def, mctx){
+  const m = mctx.m, rd = m.returnDate, rows = [], warns = [];
+  if(!rd) return '<p class="muted" style="margin:0">Enter the return date to calculate the filing deadlines.</p>';
+  const row = (label, sub, d) => {
+    const left = daysUntil(d);
+    const rel = left < 0 ? '<span class="red-text">Passed</span>' : left === 0 ? '<span class="red-text">Today</span>' : left <= 3 ? `<span class="amber-text">In ${left} day${left === 1 ? '' : 's'}</span>` : `In ${left} days`;
+    return `<tr><th>${label}<small>${sub}${isWeekend(d) ? '. Falls on a weekend; file the business day before.' : ''}</small></th><td class="num">${fDay(d)}<small>${rel}</small></td></tr>`;
+  };
+  rows.push(`<tr><th>Return date</th><td class="num">${fDay(rd)}</td></tr>`);
+  if(def.ours){
+    rows.push(row('File and serve the motion', `${def.fileDays} days before, ${def.fileRule}`, addDays(rd, -def.fileDays)));
+    rows.push(row('Opposition due from defense', `${def.oppDays} days before`, addDays(rd, -def.oppDays)));
+    rows.push(row('Reply papers', '4 days before, R. 1:6-3(a)', addDays(rd, -4)));
+  } else {
+    rows.push(row('Opposition due', `${def.oppDays} days before, ${def.oppRule}`, addDays(rd, -def.oppDays)));
+    rows.push(row('Movant reply due', '4 days before', addDays(rd, -4)));
+  }
+  if(def.id === 'mov4235'){
+    if(mctx.calc.formCDue && daysUntil(mctx.calc.formCDue) > 0) warns.push(`Defendant's Form C answers are not overdue until ${fDate(mctx.calc.formCDue)}. A motion filed earlier is premature.`);
+    if(!cur.served?.date) warns.push("Plaintiff's own Form A answers are not marked served. R. 4:23-5(a)(3) requires certifying that plaintiff is not in default.");
+  }
+  if(def.id === 'movExt' && m.discoveryEnd && rd > m.discoveryEnd) warns.push('The return date falls after the current discovery end date. Under R. 4:24-1(c) the motion should be returnable before discovery closes; check the rule and the return date.');
+  if(def.id === 'opp4235' && !m.answersServed) warns.push('This opposition depends on serving the Form A answers first. Record the service date on the Finish screen or in the details.');
+  return `<table class="tbl"><tbody>${rows.join('')}</tbody></table>${warns.map(w => `<div class="callout amber" style="margin:10px 0 0">${esc(w)}</div>`).join('')}<p class="note" style="margin-top:8px">Calendar days counted back from the return date. Confirm against the court's motion calendar.</p>`;
+}
+function motionLive(def){
+  const mctx = motionCtx(def);
+  const doc = def.docs[Math.min(state.motionDoc, def.docs.length - 1)];
+  const out = motionDoc(def, doc, mctx);
+  return {dead: motionDeadlinesHTML(def, mctx), paper: out.html, missing: out.missing, doc};
+}
+function missNote(missing){
+  if(!missing.length) return '';
+  return `<div class="callout red"><b>${missing.length} detail${missing.length === 1 ? '' : 's'} missing:</b> ${missing.map(mi => `${esc(mi.label)} <button class="btn sm" data-act="jump" data-path="${esc(mi.path)}">Fill in</button>`).join(' ')}</div>`;
+}
+function viewMotions(){
+  const def = MOTIONS.find(x => x.id === state.motion) || MOTIONS[0];
+  const m = motionData(def);
+  const live = motionLive(def);
+  const done = cur.motions?.[def.id]?.packet || {};
+  const di = Math.min(state.motionDoc, def.docs.length - 1);
+  return head('Motion papers', 'Assembles the routine papers from this matter: captions, notices, certifications, orders and deadlines. Legal argument stays with the attorney, and those places are marked.')
+  + `<section class="group"><header><h3>Motion</h3></header><ul class="mlist2">${MOTIONS.map(x => `<li class="${x.id === def.id ? 'on' : ''}"><label><input type="radio" name="motion-pick" value="${x.id}" data-act="motion" data-id="${x.id}"${x.id === def.id ? ' checked' : ''}><span><b>${x.ours ? 'File' : 'Oppose'}: ${esc(x.title)}</b><small>${esc(x.rule)}. ${esc(x.summary)}</small></span></label></li>`).join('')}</ul></section>
+  <div class="grid2">
+    <section class="card"><header><h3>Details for this motion</h3></header><div class="gbody"><div class="fields">${def.fields.map(f => `<div class="f${f.w === 'full' ? ' full' : ''}">${f.t === 'yn' ? `<span class="lab" id="${fid('m.' + f.k)}-l">${esc(f.l)}</span>` : `<label for="${fid('m.' + f.k)}">${esc(f.l)}</label>`}${controlHTML(f, 'm.' + f.k, m[f.k], 'data-mpath')}${f.h ? `<span class="hint">${esc(f.h)}</span>` : ''}</div>`).join('')}</div></div></section>
+    <div class="stack">
+      <section class="card"><header><h3>Deadlines</h3></header><div class="gbody" id="mo-dead">${live.dead}</div></section>
+      <section class="card"><header><h3>Packet</h3></header><div class="gbody"><ul class="checks">${def.packet.map((p, i) => `<li><input type="checkbox" id="pk-${i}" data-pk="${i}"${done[i] ? ' checked' : ''}><label for="pk-${i}">${esc(p[0])}<small>${esc(p[1])}</small></label></li>`).join('')}</ul></div></section>
+    </div>
+  </div>
+  <div class="print-root"><div class="docbar"><div class="tabs" role="tablist">${def.docs.map((d, i) => `<button class="tab${i === di ? ' on' : ''}" role="tab" aria-selected="${i === di}" data-act="mdoc" data-i="${i}">${esc(d.title)}</button>`).join('')}</div>
+    <div class="row"><button class="btn pri" data-act="copy-motion">Copy for Word</button>${LOCAL ? '<button class="btn" data-act="dl-motion">Download Word file</button><button class="btn" data-act="print">Print</button>' : ''}</div></div>
+    <div id="mo-miss">${missNote(live.missing)}</div>
+    <div class="paper-wrap"><div class="paper" id="motion-paper">${live.paper}</div></div></div>
+  <section class="card" style="margin-top:16px"><header><h3>Starter clauses</h3><p class="note">Standard passages used in these papers. The attorney confirms every citation before filing.</p></header><div class="gbody">
+    <ul class="clauses">${MCLAUSES.map(c => `<li><b>${esc(c.t)}</b> <span class="muted small">${esc(c.cite)}</span><p>${esc(c.x)}</p><button class="btn sm" data-act="copy-clause" data-id="${c.id}">Copy</button></li>`).join('')}</ul></div></section>`;
+}
+let liveTimer = null;
+function refreshMotionLive(){
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(() => {
+    const def = MOTIONS.find(x => x.id === state.motion) || MOTIONS[0];
+    const live = motionLive(def);
+    const d = $('#mo-dead'), p = $('#motion-paper'), mm = $('#mo-miss');
+    if(d) d.innerHTML = live.dead; if(p) p.innerHTML = live.paper; if(mm) mm.innerHTML = missNote(live.missing);
+  }, 180);
+}
+
+/* forms library */
+function viewLibrary(){
+  const L = lib();
+  return head('Forms library', 'Question wording, answer templates, the standard answers to supplemental questions, and standard language all live here as editable text. When the court amends Appendix II, or the attorney wants different wording, change it here. No programming is needed.')
+  + `<div class="callout">Form A wording is from R. Appendix II, effective September 1, 2020. Compare it with the current text on njcourts.gov before relying on it. Changes apply to every matter on this computer.</div>
+  <details class="card help"><summary style="padding:6px 12px;cursor:pointer;background:var(--head)"><b>How templates work</b></summary><div class="gbody scrollx"><table class="tbl"><tbody>
+   <tr><td><code>{{client.fullName}}</code></td><td>Inserts a field. If it is blank, the answer shows MISSING and staff are sent to the field.</td></tr>
+   <tr><td><code>{{police.date|date}}</code></td><td>Formats a value. Also <code>|money</code>, <code>|time</code>, <code>|lower</code>, <code>|upper</code>.</td></tr>
+   <tr><td><code>{{#if client.employed == yes}} ... {{else}} ... {{/if}}</code></td><td>Chooses wording based on an answer. A blank yes or no is flagged as missing.</td></tr>
+   <tr><td><code>{{#each calc.providers}}{{.name}}{{/each}}</code></td><td>Repeats for each row of a list. <code>{{@a}}</code> prints a, b, c.</td></tr>
+  </tbody></table></div></details>
+  <div class="row between" style="margin:14px 0 8px"><h2 style="margin:0;font-size:20px">Form A questions</h2><div class="row">${LOCAL ? '<button class="btn sm" data-act="lib-export">Save library file</button>' : ''}<button class="btn sm" data-act="lib-import">Load library file</button><input type="file" id="lib-file" accept=".json,application/json" hidden></div></div>
+  ${L.qs.map(q => `<details class="libq" data-lq="${q.n}"><summary><b>No. ${q.n}</b><span>${esc(q.s)}</span><span class="muted small">${q.src.map(s => SRC[s]).join(', ')}${q.custom ? ', customized' : ''}</span></summary><div class="in">
+    <div class="f"><label for="lq-${q.n}-text">Question wording</label><textarea id="lq-${q.n}-text" data-libq="${q.n}" data-libf="text" rows="3">${esc(q.text)}</textarea></div>
+    <div class="f"><label for="lq-${q.n}-tpl">Answer template</label><textarea class="code" id="lq-${q.n}-tpl" data-libq="${q.n}" data-libf="tpl" rows="6">${esc(q.tpl)}</textarea></div>
+    <div><b>Preview with the open matter</b><div class="tpl-prev" id="lp-${q.n}">${hl(renderTpl(q.tpl, CTX).text)}</div></div>
+    ${q.custom ? `<div><button class="btn sm" data-act="lib-restore" data-n="${q.n}">Restore the original wording and template</button></div>` : ''}
+  </div></details>`).join('')}
+  <h2 style="margin:22px 0 8px;font-size:20px">Standard answers to supplemental questions</h2>
+  <p class="note" style="margin:0 0 8px">When a supplemental question contains one of the match words, the answer is offered on the Supplemental questions screen.</p>
+  ${L.supp.map((e, k) => `<details class="libq"><summary><b>${k + 1}.</b><span>${esc(e.t)}</span><span class="muted small">${esc((e.k || []).slice(0, 4).join(', '))}${(e.k || []).length > 4 ? ', ...' : ''}</span></summary><div class="in">
+    <div class="f"><label for="sl-${k}-t">Name</label><input type="text" id="sl-${k}-t" data-slib="${k}" data-sf="t" value="${esc(e.t)}"></div>
+    <div class="f"><label for="sl-${k}-k">Match words</label><input type="text" id="sl-${k}-k" data-slib="${k}" data-sf="k" value="${esc((e.k || []).join(', '))}"><span class="hint">Separate with commas.</span></div>
+    <div class="f"><label for="sl-${k}-tpl">Answer template</label><textarea class="code" id="sl-${k}-tpl" data-slib="${k}" data-sf="tpl" rows="4">${esc(e.tpl)}</textarea></div>
+    <div><button class="btn sm" data-act="slib-rm" data-i="${k}">Remove this standard answer</button></div>
+  </div></details>`).join('')}
+  <div style="margin:8px 0 0"><button class="btn sm" data-act="slib-add">Add a standard answer</button></div>
+  <section class="card" style="margin-top:22px"><header><h3>Standard language and objections</h3><p class="note">These appear in the insert lists on every answer.</p></header><div class="gbody">
+   <div class="items">${L.clauses.map((c, i) => `<div class="item"><header><b>${c.c === 'objection' ? 'Objection' : 'Standard language'}</b><button class="btn sm" data-act="clause-rm" data-i="${i}">Remove</button></header><div class="fields"><div class="f"><label for="cl-${i}-t">Name</label><input type="text" id="cl-${i}-t" data-clause="${i}" data-cf="t" value="${esc(c.t)}"></div><div class="f"><label for="cl-${i}-c">Kind</label><select id="cl-${i}-c" data-clause="${i}" data-cf="c">${optHTML([['answer','Standard language'],['objection','Objection']], c.c)}</select></div><div class="f full"><label for="cl-${i}-x">Text</label><textarea id="cl-${i}-x" data-clause="${i}" data-cf="x" rows="2">${esc(c.x)}</textarea></div></div></div>`).join('')}</div>
+   <div style="margin-top:10px"><button class="btn sm" data-act="clause-add">Add standard language</button></div></div></section>`;
+}
+
+/* firm settings */
+function viewSettings(){
+  const F = firm();
+  const fld = (k, l, t, h, extra) => `<div class="f${t === 'area' ? ' full' : ''}"><label for="fs-${k}">${l}</label>${t === 'area' ? `<textarea id="fs-${k}" data-firm="${k}" rows="${extra || 3}"${k === 'prelim' ? ' class="code"' : ''}>${esc(F[k])}</textarea>` : t === 'select' ? `<select id="fs-${k}" data-firm="${k}">${optHTML(h, F[k])}</select>` : `<input type="text" id="fs-${k}" data-firm="${k}" value="${esc(F[k])}">`}${t !== 'select' && h ? `<span class="hint">${esc(h)}</span>` : ''}</div>`;
+  return head('Firm settings', 'Letterhead, signature block, reviewers, and the paragraphs that open and close every set of answers. These apply to all matters on this computer.')
+  + `<section class="group"><header><h3>Attorney identification block</h3><p class="note">Printed at the top left of every paper, as R. 1:4-1(b) requires.</p></header><div class="gbody"><div class="fields">
+     ${fld('name', 'Firm name')}${fld('attorney', 'Signing attorney')}${fld('attorneyId', 'Attorney ID number')}${fld('phone', 'Telephone')}${fld('email', 'Email')}${fld('address', 'Office address', 'area', 'One line per row', 2)}
+   </div></div></section>
+   <section class="group"><header><h3>Review</h3></header><div class="gbody"><div class="fields">${fld('paralegal', 'Paralegal who checks drafts', '', 'Shown on the check box. Leave blank to show "paralegal."')}</div></div></section>
+   <section class="group"><header><h3>Answer defaults</h3></header><div class="gbody"><div class="fields">
+     ${fld('ssnMode', 'Social Security number in Question 1', 'select', [['last4', 'Show the last four digits only'], ['separate', 'Provide under separate confidential cover']])}
+     ${fld('desig', 'Source designation, R. 4:17-4(a)', 'select', [['answer', 'Add a source line under each answer'], ['off', 'Do not add source lines']])}
+     ${fld('prelim', 'Opening paragraph', 'area', 'Template text. Uses the same codes as the Forms library.', 4)}
+     ${fld('cert', 'Certification', 'area', 'Form A certification as prescribed in Appendix II.', 6)}
+   </div></div></section>
+   <div class="row"><button class="btn" data-act="firm-reset">Restore default settings</button></div>`;
+}
+
+const VIEWS = {
+  matter: () => viewIntake('matter'), police: () => viewIntake('police'), medical: () => viewIntake('medical'),
+  client: () => viewIntake('client'), attorney: () => viewIntake('attorney'), review: viewReview, supplemental: viewSupp,
+  finish: viewFinish, questionnaire: viewQuestionnaire, motions: viewMotions, library: viewLibrary, settings: viewSettings
+};
+
+/* ======================================================================
+   RENDER LOOP
+   ====================================================================== */
+function render(){
+  if(!VIEWS[state.view]) state.view = 'review';
+  compute();
+  const body = VIEWS[state.view]();
+  $('#topbar').innerHTML = topHTML();
+  $('#rail').innerHTML = railHTML();
+  main.innerHTML = body + returnBar();
+  store.set('view', state.view);
+}
+let chromeTimer = null;
+function refreshChrome(){
+  clearTimeout(chromeTimer);
+  chromeTimer = setTimeout(() => {
+    compute();
+    $('#topbar').innerHTML = topHTML();
+    $('#rail').innerHTML = railHTML();
+    if(INTAKE.includes(state.view)) updateNeed();
+    if(state.view === 'review'){
+      const st = $('#rv-stats'); if(st) st.innerHTML = statsHTML();
+      const a = A.find(x => x.q.n === state.q), p = $('#qpill');
+      if(p && a) p.innerHTML = stHTML(a.status);
+      const ib = $('#ix-body'); if(ib) ib.innerHTML = indexRows(state.q);
+    }
+    if(state.view === 'supplemental'){
+      SUPP.forEach(s => {
+        const st = $('#ss-' + s.i); if(st) st.innerHTML = stHTML(s.status);
+        const so = $('#so2-' + s.i); if(so) so.innerHTML = signoffHTML(s.paraOK, s.attyOK, s.nMiss > 0, `data-supp="${s.i}"`);
+        if(state.sxDirty.has(s.i)){ const sx = $('#sx-' + s.i); if(sx) sx.innerHTML = suppFlagsHTML(s); }
+      });
+      state.sxDirty.clear();
+    }
+  }, 160);
+}
+function go(view, opts = {}){
+  state.view = view; state.editing = false;
+  if(opts.q) state.q = opts.q;
+  if(state.returnTo && view === state.returnTo.view && !opts.fromBack) state.returnTo = null;
+  render();
+  if(!opts.keepScroll) window.scrollTo({top: 0});
+}
+function jumpTo(path){
+  if(path.startsWith('m.')){
+    const el = document.getElementById(fid(path)); if(el){ el.scrollIntoView({block: 'center'}); el.focus({preventScroll: true}); flash(el.closest('.f') || el); }
+    return;
+  }
+  const meta = FIELD_INDEX[norm(path)] || {};
+  const step = meta.step || 'matter';
+  if(step !== state.view){ state.view = step; state.editing = false; render(); }
+  requestAnimationFrame(() => {
+    let el = document.getElementById(fid(path)) || document.getElementById('add-' + fid(path));
+    if(!el){ const m = /^(.*)\.\d+\.[^.]+$/.exec(path); if(m) el = document.getElementById('add-' + fid(m[1])); }
+    if(el){
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      el.scrollIntoView({block: 'center', behavior: reduce ? 'auto' : 'smooth'});
+      el.focus({preventScroll: true});
+      flash(el.closest('.f') || el);
+    }
+  });
+}
+function flash(el){ el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+function ensureAns(n){ cur.answers = cur.answers || {}; return cur.answers[n] = cur.answers[n] || {}; }
+function curAnswer(){ return A.find(a => a.q.n === state.q); }
+function suppItem(i){ cur.supp = cur.supp || {items: []}; return cur.supp.items[i]; }
+function suppInsert(i, text, missing, atStart){
+  const it = suppItem(i); if(!it) return;
+  const a = (it.a || '').trim();
+  it.a = atStart ? text + (a ? '\n\n' + a : '') : (a ? a + '\n\n' : '') + text;
+  it.miss = it.miss || [];
+  (missing || []).forEach(mi => { if(!it.miss.some(x => x.label === mi.label)) it.miss.push(mi); });
+}
+function keepScrollRender(){ const y = scrollY; render(); window.scrollTo({top: y}); }
+function advanceAfterSignoff(){
+  compute();
+  const {next} = navTargets();
+  if(next){ state.q = next.q.n; state.editing = false; }
+}
+
+/* ======================================================================
+   ACTIONS
+   ====================================================================== */
+const ACT = {
+  go: b => go(b.dataset.view),
+  'go-filter': b => { state.filter = b.dataset.f; compute(); const first = A.find(inFilter); go('review', {q: first ? first.q.n : state.q}); },
+  q: b => { state.q = +b.dataset.q; state.editing = false; render(); if(innerWidth < 1100) $('#qcard')?.scrollIntoView({block: 'start'}); },
+  prev: () => { const {prev} = navTargets(); if(prev){ state.q = prev.q.n; state.editing = false; render(); } },
+  next: () => { const {next} = navTargets(); if(next){ state.q = next.q.n; state.editing = false; render(); } },
+  edit: () => {
+    const a = curAnswer(); if(!a) return;
+    state.editing = !state.editing; state.editBase = a.auto.text; render();
+    if(state.editing){ const t = $('#ans-edit'); if(t){ t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
+  },
+  revert: () => { const s = ensureAns(state.q); delete s.text; delete s.base; state.editing = false; saveMatter(); render(); toast('Returned to the automatic draft.'); },
+  keep: () => { const a = curAnswer(); const s = ensureAns(state.q); s.base = a.auto.text; saveMatter(); render(); },
+  para: b => {
+    const on = b.dataset.v === '1';
+    if(b.dataset.supp != null && b.dataset.supp !== ''){ const it = suppItem(+b.dataset.supp); it.paraOK = on; it.paraText = it.a || ''; if(!on) it.reviewed = false; saveMatter(); keepScrollRender(); if(on) toast(`Supplemental No. ${+b.dataset.supp + 1} checked.`); return; }
+    const a = curAnswer(); if(!a) return;
+    const s = ensureAns(a.q.n); s.paraOK = on; s.paraText = a.final; if(!on) s.reviewed = false; saveMatter();
+    if(on){ toast(`No. ${a.q.n} checked.`); advanceAfterSignoff(); }
+    render();
+  },
+  atty: b => {
+    const on = b.dataset.v === '1';
+    if(b.dataset.supp != null && b.dataset.supp !== ''){ const it = suppItem(+b.dataset.supp); it.reviewed = on; it.reviewedText = it.a || ''; saveMatter(); keepScrollRender(); if(on) toast(`Supplemental No. ${+b.dataset.supp + 1} approved.`); return; }
+    const a = curAnswer(); if(!a) return;
+    const s = ensureAns(a.q.n); s.reviewed = on; s.reviewedText = a.final; saveMatter();
+    if(on){ toast(`No. ${a.q.n} approved.`); advanceAfterSignoff(); }
+    render();
+  },
+  filter: b => {
+    state.filter = b.dataset.f; compute();
+    const a = curAnswer(); if(a && !inFilter(a)){ const f = A.find(inFilter); if(f) state.q = f.q.n; }
+    state.editing = false; render();
+  },
+  jump: b => {
+    if(state.view === 'review') state.returnTo = {view: 'review', q: state.q, note: `Filling in for Interrogatory No. ${state.q}`, label: `Back to No. ${state.q}`};
+    else if(state.view === 'supplemental'){ const n = +b.dataset.i + 1; state.returnTo = {view: 'supplemental', anchor: 'supp-' + b.dataset.i, note: `Filling in for Supplemental No. ${n}`, label: 'Back to supplemental questions'}; }
+    jumpTo(b.dataset.path);
+  },
+  back: () => {
+    const r = state.returnTo; if(!r) return; state.returnTo = null;
+    go(r.view, {q: r.q, fromBack: true, keepScroll: !!r.anchor});
+    if(r.anchor){ const el = document.getElementById(r.anchor); if(el) el.scrollIntoView({block: 'start'}); }
+  },
+  add: b => {
+    const arr = getPath(cur, b.dataset.path) || []; arr.push({}); setPath(cur, b.dataset.path, arr); saveMatter(); keepScrollRender();
+    const first = Object.values(SCHEMA).flat().flatMap(g => g.fields).find(f => f.k === b.dataset.path)?.fields[0].k || 'name';
+    const el = document.getElementById(fid(`${b.dataset.path}.${arr.length - 1}.${first}`));
+    if(el){ el.focus(); el.scrollIntoView({block: 'center'}); }
+  },
+  rm: b => armThen(b, () => { const arr = getPath(cur, b.dataset.path) || []; arr.splice(+b.dataset.i, 1); saveMatter(); keepScrollRender(); }),
+  'supp-split': () => {
+    const raw = $('#supp-paste')?.value || ''; const qs = splitQuestions(raw);
+    if(!qs.length){ toast('Paste the questions first.'); return; }
+    cur.supp = cur.supp || {items: []}; qs.forEach(q => cur.supp.items.push({q, a: ''})); saveMatter(); keepScrollRender();
+    toast(`Added ${qs.length} question${qs.length === 1 ? '' : 's'}.`);
+  },
+  'supp-add': () => { cur.supp = cur.supp || {items: []}; cur.supp.items.push({q: '', a: ''}); saveMatter(); keepScrollRender(); const el = $(`#sq-${cur.supp.items.length - 1}`); if(el){ el.focus(); el.scrollIntoView({block: 'center'}); } },
+  'supp-use': b => { const e = lib().supp[+b.dataset.k]; if(!e) return; const r = renderTpl(e.tpl, CTX); suppInsert(+b.dataset.i, r.text, r.missing, false); saveMatter(); keepScrollRender(); toast(`Inserted: ${e.t}`); },
+  'supp-obj': b => { const c = lib().clauses.find(x => x.id === b.dataset.o) || CLAUSES_DEFAULT.find(x => x.id === b.dataset.o); if(!c) return; suppInsert(+b.dataset.i, c.x, [], true); saveMatter(); keepScrollRender(); toast(`Inserted objection: ${c.t}`); },
+  'supp-rm': b => armThen(b, () => { cur.supp.items.splice(+b.dataset.i, 1); saveMatter(); keepScrollRender(); }),
+  'new-matter': () => { saveMatter(true); cur = blankMatter(); saveMatter(true); state.q = 1; state.returnTo = null; go('matter'); toast('New matter started.'); },
+  sample: () => { saveMatter(true); cur = exampleMatter(); compute(); seedExample(); saveMatter(true); go('review', {q: 1}); toast('Fill-in-the-blank example loaded.'); },
+  'open-matter': b => { saveMatter(true); const m = store.get('m.' + b.dataset.id); if(m){ cur = m; store.set('current', m.id); state.returnTo = null; go('matter'); } else toast('That matter could not be found on this computer.'); },
+  'export-matter': () => download(`${fileBase()}.json`, JSON.stringify(cur, null, 2), 'application/json'),
+  'import-matter': () => $('#import-matter')?.click(),
+  'del-matter': b => armThen(b, () => {
+    store.del('m.' + cur.id);
+    const idx = (store.get('index') || []).filter(x => x.id !== cur.id); store.set('index', idx);
+    const nextM = idx.length ? store.get('m.' + idx[0].id) : null;
+    cur = nextM || blankMatter(); saveMatter(true); go('matter'); toast('Matter deleted from this computer.');
+  }, 'Confirm delete'),
+  'copy-answers': () => copyDoc(answersDocHTML(), answersText(), $('#doc-paper')),
+  'dl-answers': () => download(`${fileBase()} Interrogatory Answers.doc`, wordFile(answersDocHTML(), 'Interrogatory Answers'), 'application/msword'),
+  print: () => window.print(),
+  'copy-quest': () => copyDoc(questDoc(), $('#quest-paper')?.innerText || '', $('#quest-paper')),
+  'dl-quest': () => download(`${fileBase()} Client Questionnaire.doc`, wordFile(questDoc(), 'Client Questionnaire'), 'application/msword'),
+  motion: b => { state.motion = b.dataset.id; state.motionDoc = 0; keepScrollRender(); },
+  mdoc: b => { state.motionDoc = +b.dataset.i; keepScrollRender(); },
+  'copy-motion': () => { const def = MOTIONS.find(x => x.id === state.motion); const live = motionLive(def); copyDoc(live.paper, $('#motion-paper')?.innerText || '', $('#motion-paper')); },
+  'dl-motion': () => { const def = MOTIONS.find(x => x.id === state.motion); const live = motionLive(def); download(`${fileBase()} ${live.doc.title}.doc`, wordFile(live.paper, live.doc.title), 'application/msword'); },
+  'copy-clause': async b => { const c = MCLAUSES.find(x => x.id === b.dataset.id); try{ await navigator.clipboard.writeText(c.x); toast('Clause copied.'); }catch(e){ toast('Copying was blocked here. Select the text and press Ctrl+C.'); } },
+  'lib-restore': b => { libSave(o => { if(o.qs) delete o.qs[b.dataset.n]; }); keepScrollRender(); toast(`No. ${b.dataset.n} restored.`); },
+  'lib-export': () => download('drafter-library.json', JSON.stringify(store.get('lib') || {}, null, 2), 'application/json'),
+  'lib-import': () => $('#lib-file')?.click(),
+  'slib-add': () => { libSave(o => { o.supp = (o.supp || SUPP_DEFAULT.map(e => ({...e}))); o.supp.push({t: 'New standard answer', k: [], tpl: ''}); }); keepScrollRender(); },
+  'slib-rm': b => armThen(b, () => { libSave(o => { o.supp = (o.supp || SUPP_DEFAULT.map(e => ({...e}))); o.supp.splice(+b.dataset.i, 1); }); keepScrollRender(); }),
+  'clause-add': () => { libSave(o => { o.clauses = (o.clauses || CLAUSES_DEFAULT.map(c => ({...c}))); o.clauses.push({c: 'answer', t: 'New standard language', x: ''}); }); keepScrollRender(); },
+  'clause-rm': b => armThen(b, () => { libSave(o => { o.clauses = (o.clauses || CLAUSES_DEFAULT.map(c => ({...c}))); o.clauses.splice(+b.dataset.i, 1); }); keepScrollRender(); }),
+  'firm-reset': b => armThen(b, () => { store.del('firm'); render(); toast('Firm settings restored.'); }, 'Confirm restore')
+};
+function armThen(b, fn, label){
+  if(b.dataset.armed === '1'){ fn(); return; }
+  const orig = b.textContent; b.dataset.armed = '1'; b.classList.add('armed'); b.textContent = label || 'Confirm remove';
+  setTimeout(() => { if(b.isConnected){ b.dataset.armed = ''; b.classList.remove('armed'); b.textContent = orig; } }, 3500);
+}
+/* Sign-offs on the example, so each status color appears once it opens:
+   a few answers approved (green), a few checked (blue), one changed after sign-off (amber).
+   Anything still marked missing stays red; the rest wait for the paralegal (grey). */
+function seedExample(){
+  const ready = A.filter(a => a.status !== 'missing');
+  ready.forEach((a, k) => {
+    const s = ensureAns(a.q.n);
+    if(k < 4){ s.paraOK = true; s.paraText = a.final; s.reviewed = true; s.reviewedText = a.final; }
+    else if(k < 8){ s.paraOK = true; s.paraText = a.final; }
+    else if(k === 8){ s.paraOK = true; s.paraText = a.final + ' (wording before a later change)'; }
+  });
+  SUPP.forEach(s => { if(s.i === 3 || s.i === 5) return; const g = s.sugg[0]; if(!g) return; const r = renderTpl(lib().supp[g.k].tpl, CTX); suppInsert(s.i, r.text, r.missing, false); });
+  const first = suppItem(0); if(first){ first.paraOK = true; first.paraText = first.a; first.reviewed = true; first.reviewedText = first.a; }
+  const second = suppItem(1); if(second){ second.paraOK = true; second.paraText = second.a; }
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if(!b || b.tagName === 'SELECT' || b.tagName === 'TBODY') return;
+  const fn = ACT[b.dataset.act]; if(fn) fn(b, e);
+});
+
+main.addEventListener('input', e => {
+  const t = e.target;
+  if(t.dataset.path && t.type !== 'radio' && t.type !== 'checkbox' && t.tagName !== 'SELECT'){
+    setPath(cur, t.dataset.path, t.value); saveMatter();
+    if(state.view === 'finish') return;
+    refreshChrome();
+  } else if(t.dataset.ans){
+    const s = ensureAns(+t.dataset.ans);
+    if(typeof s.text !== 'string') s.base = state.editBase;
+    s.text = t.value; saveMatter(); refreshChrome();
+  } else if(t.dataset.note){
+    ensureAns(+t.dataset.note).note = t.value; saveMatter();
+  } else if(t.dataset.sq != null && t.dataset.sq !== ''){
+    const it = suppItem(+t.dataset.sq); if(it){ it.q = t.value; state.sxDirty.add(+t.dataset.sq); saveMatter(); refreshChrome(); }
+  } else if(t.dataset.sa != null && t.dataset.sa !== ''){
+    const it = suppItem(+t.dataset.sa); if(it){ it.a = t.value; saveMatter(); refreshChrome(); }
+  } else if(t.dataset.mpath && t.type !== 'radio' && t.tagName !== 'SELECT'){
+    cur.motions = cur.motions || {}; const id = state.motion;
+    cur.motions[id] = cur.motions[id] || {};
+    cur.motions[id][t.dataset.mpath.slice(2)] = t.value; saveMatter(); refreshMotionLive();
+  } else if(t.dataset.firm && t.tagName !== 'SELECT'){
+    const o = store.get('firm') || {}; o[t.dataset.firm] = t.value; store.set('firm', o); refreshChrome();
+  } else if(t.dataset.libq){
+    const n = t.dataset.libq, f = t.dataset.libf;
+    libSave(o => { o.qs = o.qs || {}; o.qs[n] = {...(o.qs[n] || {}), [f]: t.value}; });
+    if(f === 'tpl'){ const p = $('#lp-' + n); if(p){ compute(); p.innerHTML = hl(renderTpl(t.value, CTX).text); } }
+  } else if(t.dataset.slib != null && t.dataset.slib !== ''){
+    const k = +t.dataset.slib, f = t.dataset.sf;
+    const val = f === 'k' ? t.value.split(',').map(s => s.trim()).filter(Boolean) : t.value;
+    libSave(o => { o.supp = (o.supp || SUPP_DEFAULT.map(e => ({...e}))); o.supp[k] = {...o.supp[k], [f]: val}; });
+  } else if(t.dataset.clause != null && t.dataset.clause !== '' && t.tagName !== 'SELECT'){
+    const i = +t.dataset.clause, f = t.dataset.cf;
+    libSave(o => { o.clauses = (o.clauses || CLAUSES_DEFAULT.map(c => ({...c}))); o.clauses[i] = {...o.clauses[i], [f]: t.value}; });
+  }
+});
+main.addEventListener('change', e => {
+  const t = e.target;
+  if(t.id === 'clause-pick'){
+    const c = lib().clauses[+t.value]; if(!c) return;
+    const a = curAnswer(); const s = ensureAns(a.q.n);
+    if(typeof s.text !== 'string'){ s.base = a.auto.text; s.text = a.final; }
+    s.text = c.c === 'objection' ? c.x + (s.text.trim() ? '\n\n' + s.text : '') : s.text.replace(/\s+$/, '') + (s.text.trim() ? '\n\n' : '') + c.x;
+    state.editing = true; saveMatter(); keepScrollRender(); toast(`Inserted: ${c.t}`);
+    return;
+  }
+  if(t.id === 'rv-filter'){
+    state.filter = t.value; compute();
+    const a = curAnswer(); if(a && !inFilter(a)){ const f = A.find(inFilter); if(f) state.q = f.q.n; }
+    state.editing = false; render(); return;
+  }
+  if(t.id === 'qmode-sel'){ state.qMode = t.value; keepScrollRender(); return; }
+  if(t.dataset.suppPick != null && t.dataset.suppPick !== ''){
+    const e2 = lib().supp[+t.value]; if(!e2) return;
+    const r = renderTpl(e2.tpl, CTX); suppInsert(+t.dataset.suppPick, r.text, r.missing, false); saveMatter(); keepScrollRender(); toast(`Inserted: ${e2.t}`); return;
+  }
+  if(t.dataset.suppObj != null && t.dataset.suppObj !== ''){
+    const c = lib().clauses[+t.value]; if(!c) return;
+    suppInsert(+t.dataset.suppObj, c.x, [], true); saveMatter(); keepScrollRender(); toast(`Inserted objection: ${c.t}`); return;
+  }
+  if(t.id === 'import-matter' || t.id === 'lib-file'){
+    const file = t.files && t.files[0]; if(!file) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try{
+        const data = JSON.parse(String(rd.result).replace(/^﻿/, ''));
+        if(t.id === 'import-matter'){
+          if(!data || typeof data !== 'object' || !data.caption) throw new Error('not a matter');
+          saveMatter(true); data.id = data.id || uid(); cur = data; saveMatter(true); go('matter'); toast(`Opened ${matterTitle(cur)}.`);
+        } else {
+          if(!data || typeof data !== 'object') throw new Error('not a library');
+          store.set('lib', data); LIB = null; render(); toast('Library loaded.');
+        }
+      }catch(err){ toast(t.id === 'import-matter' ? 'That file is not a matter file from this tool.' : 'That file is not a library file from this tool.'); }
+    };
+    rd.readAsText(file);
+    t.value = '';
+    return;
+  }
+  if(t.dataset.check){
+    cur.checklist = cur.checklist || {}; cur.checklist[t.dataset.check] = t.checked; saveMatter(); keepScrollRender(); return;
+  }
+  if(t.dataset.pk != null && t.dataset.pk !== ''){
+    cur.motions = cur.motions || {}; const id = state.motion;
+    cur.motions[id] = cur.motions[id] || {}; cur.motions[id].packet = cur.motions[id].packet || {};
+    cur.motions[id].packet[t.dataset.pk] = t.checked; saveMatter(); return;
+  }
+  if(t.dataset.path){
+    setPath(cur, t.dataset.path, t.value); saveMatter();
+    const structural = t.tagName === 'SELECT' || t.type === 'radio' || state.view === 'finish';
+    if(structural) keepScrollRender();
+    else { compute(); updateNeed(); refreshChrome(); }
+    return;
+  }
+  if(t.dataset.mpath && (t.type === 'radio' || t.tagName === 'SELECT')){
+    cur.motions = cur.motions || {}; const id = state.motion;
+    cur.motions[id] = cur.motions[id] || {};
+    cur.motions[id][t.dataset.mpath.slice(2)] = t.value; saveMatter(); refreshMotionLive(); return;
+  }
+  if(t.dataset.firm && t.tagName === 'SELECT'){
+    const o = store.get('firm') || {}; o[t.dataset.firm] = t.value; store.set('firm', o); refreshChrome(); toast('Saved.'); return;
+  }
+  if(t.dataset.clause != null && t.dataset.clause !== '' && t.tagName === 'SELECT'){
+    const i = +t.dataset.clause; libSave(o => { o.clauses = (o.clauses || CLAUSES_DEFAULT.map(c => ({...c}))); o.clauses[i] = {...o.clauses[i], c: t.value}; }); keepScrollRender(); return;
+  }
+  if(t.dataset.libq || (t.dataset.slib != null && t.dataset.slib !== '') || (t.dataset.clause != null && t.dataset.clause !== '') || t.dataset.ans || t.dataset.sa || t.dataset.sq) refreshChrome();
+});
+
+/* ======================================================================
+   START
+   ====================================================================== */
+function init(){
+  const cid = store.get('current');
+  cur = cid ? store.get('m.' + cid) : null;
+  if(!cur){ cur = exampleMatter(); compute(); seedExample(); saveMatter(true); }
+  cur.supp = cur.supp || {items: []};
+  render();
+}
+init();
+})();
+</script>
+
+</html>

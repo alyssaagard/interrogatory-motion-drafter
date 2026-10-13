@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interrogatory &amp; Motion Drafter Demo</title>
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<style>
+:root {
+  color-scheme: light;
+  --ink: #141414; --muted: #6B6B6B; --faint: #9B9B9B;
+  --line: #E7E7E7; --line-strong: #D3D3D3;
+  --bg: #F6F6F6; --surface: #FFFFFF; --grey-bg: #F0F0F0; --black: #111111;
+  --serif: "Times New Roman", Times, "Liberation Serif", serif;
+  --green: #1E7F4F; --green-bg: #E6F4EC;
+  --blue: #2557B5;  --blue-bg: #E9EFFA;
+  --amber: #9A5A00; --amber-bg: #FDF2DA;
+  --red: #B42318;   --red-bg: #FCECEB;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(--serif); }
+a { color: var(--ink); text-underline-offset: 2px; }
+.top { background: var(--surface); border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+.top b { font-size: 18px; }
+.tag { font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line-strong); border-radius: 999px; padding: 0 9px; }
+main { max-width: 880px; margin: 0 auto; padding: 34px 20px 60px; }
+h1 { font-size: 32px; line-height: 1.2; margin: 0 0 10px; text-wrap: balance; }
+h2 { font-size: 21px; margin: 38px 0 12px; }
+.lead { color: var(--muted); margin: 0; max-width: 66ch; }
+.callout { margin: 22px 0 0; padding: 12px 16px; border-radius: 6px; background: var(--amber-bg); color: #6B4000; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; margin-top: 26px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+.card h3 { margin: 0; font-size: 20px; }
+.card p { margin: 0; color: var(--muted); flex: 1; }
+.btn { align-self: flex-start; display: inline-block; background: var(--black); color: #FFFFFF; text-decoration: none; border-radius: 4px; padding: 7px 16px; font-size: 16px; }
+.btn:hover { background: #333333; }
+.btn.light { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); }
+.btn.light:hover { background: #F3F3F3; }
+ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 14px; }
+ol.steps li { counter-increment: step; display: grid; grid-template-columns: 2em minmax(0, 1fr); }
+ol.steps li::before { content: counter(step); color: var(--faint); font-variant-numeric: tabular-nums; }
+.tools { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px 20px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.st { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; padding: 1px 10px; border-radius: 999px; background: var(--grey-bg); color: var(--muted); }
+.st::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.st.green { background: var(--green-bg); color: var(--green); }
+.st.blue { background: var(--blue-bg); color: var(--blue); }
+.st.amber { background: var(--amber-bg); color: var(--amber); }
+.st.red { background: var(--red-bg); color: var(--red); }
+.note { color: var(--muted); font-size: 15.5px; margin: 14px 0 0; }
+footer { border-top: 1px solid var(--line); margin-top: 44px; padding-top: 16px; color: var(--muted); font-size: 14.5px; }
+footer p { margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<header class="top"><b>Interrogatory &amp; Motion Drafter</b><span class="tag">Demo</span></header>
+<main>
+  <h1>Interrogatory &amp; Motion Drafter</h1>
+  <p class="lead">Drafts plaintiff's answers to Form A uniform interrogatories, answers to the defense's supplemental questions, and routine motion papers from the facts of a matter, entered once. Every answer is checked by the paralegal and approved by the attorney before it is served.</p>
+  <div class="callout"><b>This is a demonstration.</b> Use made-up information only. Do not enter client information. Anything entered stays in the browser on the computer being used.</div>
+
+  <div class="cards">
+    <section class="card">
+      <h3>Example</h3>
+      <p>Opens with a fill-in-the-blank example already entered, so every screen and the finished answers can be seen right away. Bracketed blanks such as [PLAINTIFF NAME] stand in for the facts of a matter.</p>
+      <a class="btn" href="example/">Open the example</a>
+    </section>
+    <section class="card">
+      <h3>Blank</h3>
+      <p>Starts with no matters. Enter a made-up matter from the beginning to see each answer drafted as the facts go in. Takes a few seconds to open the first time.</p>
+      <a class="btn light" href="blank/">Open the blank version</a>
+    </section>
+  </div>
+
+  <h2>How it works</h2>
+  <div class="panel">
+    <ol class="steps">
+      <li><span><b>Enter the facts.</b> Fill in the first five screens from the police report, the medical records, the client, and the attorney's decisions. Anything an answer still needs is outlined in red and labeled with the question that needs it.</span></li>
+      <li><span><b>Review the Form A answers.</b> Each answer is drafted from those screens. Where an item is missing, choose Fill in to go straight to the right box, then go back to the answer. The wording can be edited, and standard language or an objection can be inserted.</span></li>
+      <li><span><b>Sign off.</b> The paralegal marks each answer as checked, and the attorney then approves it. If the wording changes after either sign-off, the answer is flagged to be checked again.</span></li>
+      <li><span><b>Supplemental questions.</b> Paste the defense's questions as served. The firm's standard answers are suggested where they fit. Questions past the tenth, or with subparts, are flagged with the matching objection under R. 4:17-1(b)(1).</span></li>
+      <li><span><b>Finish and serve.</b> See the deadlines, the attachment and HIPAA authorization checklists, and the finished answers, ready to download as a Word file or print.</span></li>
+    </ol>
+    <p class="note">In the blank version, choose Save before leaving a screen. The example saves as you type.</p>
+  </div>
+
+  <h2>Other tools</h2>
+  <div class="panel">
+    <ul class="tools">
+      <li><b>Motion papers.</b> Choose the motion and fill in a few details. The notice, certification, proposed order, and filing deadlines are prepared from the matter. Places that call for the attorney's argument are marked.</li>
+      <li><b>Client questionnaire.</b> A plain-language questionnaire for the client, sent blank or filled in for the client to confirm.</li>
+      <li><b>Forms library and Firm settings.</b> Change question wording, standard answers, objections, and letterhead. Changes apply to every matter.</li>
+    </ul>
+  </div>
+
+  <h2>Status colors</h2>
+  <div class="legend">
+    <span class="st green">Approved by attorney</span>
+    <span class="st blue">Checked by paralegal</span>
+    <span class="st amber">Needs recheck</span>
+    <span class="st red">Needs information</span>
+    <span class="st">Draft</span>
+  </div>
+
+  <footer>
+    <p>Form A question text is from the New Jersey Court Rules, Appendix II. Anything drafted must be reviewed by an attorney, and all dates and citations confirmed, before use.</p>
+    <p>&copy; 2026 Alyssa Agard. All rights reserved. Provided for viewing and for trying with made-up information only. No copying, modification, or distribution without written permission.</p>
+  </footer>
+</main>
+</body>
+</html>
